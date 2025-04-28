@@ -6,6 +6,8 @@ from fastapi.security import OAuth2PasswordBearer
 from pydantic import BaseModel
 from backend.auth.auth_handler import verify_password, create_access_token, decode_token
 import os
+import sys
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 # ================================
 # Hardcoded bcrypt-hashed password for "admin123"
@@ -16,6 +18,11 @@ admin_user = {
     "role_id": "A001"
 }
 # ================================
+
+
+from backend.database import engine, models
+
+models.Base.metadata.create_all(bind=engine)
 
 # FastAPI app setup
 app = FastAPI()

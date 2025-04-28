@@ -21,7 +21,6 @@ def create_user(user: UserCreate):
     conn.close()
     return new_user
 
-
 @router.get("/users", response_model=List[UserOut], dependencies=[Depends(admin_required)])
 def get_users():
     conn = get_connection()
