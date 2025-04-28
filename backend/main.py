@@ -7,6 +7,9 @@ from pydantic import BaseModel
 from backend.auth.auth_handler import verify_password, create_access_token, decode_token
 import os
 import sys
+from backend.database import engine
+from backend.models.models import Base  # Corrected import
+
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 # ================================
@@ -19,10 +22,7 @@ admin_user = {
 }
 # ================================
 
-
-from backend.database import engine, models
-
-models.Base.metadata.create_all(bind=engine)
+Base.metadata.create_all(bind=engine)  # Corrected to use 'Base'
 
 # FastAPI app setup
 app = FastAPI()
@@ -38,7 +38,7 @@ app.add_middleware(
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 app.mount("/frontend/dashboard.html", StaticFiles(directory="frontend", html=True), name="static")
-app.mount("/frontend",StaticFiles(directory="frontend",html=True),name="static")
+app.mount("/frontend", StaticFiles(directory="frontend", html=True), name="static")
 
 # Data models
 class LoginModel(BaseModel):
