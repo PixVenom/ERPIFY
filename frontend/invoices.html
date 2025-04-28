@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Invoice Management</title>
+    <link rel="stylesheet" href="/frontend/css/invices.css" />
+</head>
+
+<body>
+    <div class="container">
+        <h1>Invoice Management</h1>
+
+        <form id="invoice-form">
+            <input type="text" id="invoice-id" placeholder="Invoice ID" required />
+            <input type="text" id="customer-name" placeholder="Customer Name" required />
+            <input type="date" id="invoice-date" required />
+            <input type="number" id="total-amount" placeholder="Total Amount" required />
+            <select id="status">
+                <option value="Paid">Paid</option>
+                <option value="Unpaid">Unpaid</option>
+                <option value="Pending">Pending</option>
+            </select>
+            <button type="submit" class="btn btn-submit">Add Invoice</button>
+        </form>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Invoice ID</th>
+                    <th>Customer</th>
+                    <th>Date</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="invoice-table-body"></tbody>
+        </table>
+    </div>
+
+    <script src="/frontend/js/invoices.js"></script>
+</body>
+
+</html>

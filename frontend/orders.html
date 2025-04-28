@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Order Management</title>
+    <link rel="stylesheet" href="/frontend/css/orders.css" />
+</head>
+
+<body>
+    <div class="container">
+        <h1>Order Management</h1>
+
+        <form id="order-form">
+            <input type="text" id="order-id" placeholder="Order ID" required />
+            <input type="text" id="customer-name" placeholder="Customer Name" required />
+            <input type="text" id="product-name" placeholder="Product Name" required />
+            <input type="number" id="quantity" placeholder="Quantity" required />
+            <input type="date" id="order-date" required />
+            <button type="submit" class="btn btn-submit">Add Order</button>
+        </form>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Customer</th>
+                    <th>Product</th>
+                    <th>Quantity</th>
+                    <th>Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="order-table-body"></tbody>
+        </table>
+    </div>
+
+    <script src="/frontend/js/orders.js"></script>
+</body>
+
+</html>

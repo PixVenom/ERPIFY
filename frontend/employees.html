@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Employee Management</title>
+    <link rel="stylesheet" href="/frontend/css/employees.css" />
+</head>
+
+<body>
+    <div class="container">
+        <h1>Employee Management</h1>
+
+        <form id="employee-form">
+            <input type="text" id="employee-id" placeholder="Employee ID" required />
+            <input type="text" id="employee-name" placeholder="Full Name" required />
+            <input type="text" id="position" placeholder="Position" required />
+            <input type="email" id="email" placeholder="Email" required />
+            <input type="text" id="phone" placeholder="Phone Number" required />
+            <select id="department">
+                <option value="HR">HR</option>
+                <option value="Sales">Sales</option>
+                <option value="Finance">Finance</option>
+                <option value="IT">IT</option>
+                <option value="Operations">Operations</option>
+            </select>
+            <button type="submit" class="btn btn-submit">Add Employee</button>
+        </form>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Position</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Department</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="employee-table-body"></tbody>
+        </table>
+    </div>
+
+    <script src="/frontend/js/employees.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Payment Management</title>
+    <link rel="stylesheet" href="/frontend/css/payments.css" />
+</head>
+
+<body>
+    <div class="container">
+        <h1>Payment Management</h1>
+
+        <form id="payment-form">
+            <input type="text" id="payment-id" placeholder="Payment ID" required />
+            <input type="text" id="invoice-id" placeholder="Invoice ID" required />
+            <input type="text" id="customer-name" placeholder="Customer Name" required />
+            <input type="number" id="amount-paid" placeholder="Amount Paid" required />
+            <input type="date" id="payment-date" required />
+            <select id="payment-method">
+                <option value="Cash">Cash</option>
+                <option value="Credit Card">Credit Card</option>
+                <option value="Bank Transfer">Bank Transfer</option>
+                <option value="UPI">UPI</option>
+            </select>
+            <button type="submit" class="btn btn-submit">Add Payment</button>
+        </form>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Payment ID</th>
+                    <th>Invoice ID</th>
+                    <th>Customer</th>
+                    <th>Amount</th>
+                    <th>Date</th>
+                    <th>Method</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="payment-table-body"></tbody>
+        </table>
+    </div>
+
+    <script src="/frontend/js/payments.js"></script>
+</body>
+
+</html>

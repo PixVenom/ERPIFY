@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ERP Reports Dashboard</title>
+    <link rel="stylesheet" href="/frontend/css/reports.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+    <div class="container">
+        <h1>ERP Reports Dashboard</h1>
+
+        <div class="filters">
+            <select id="report-type">
+                <option value="sales">Sales Report</option>
+                <option value="inventory">Inventory Report</option>
+                <option value="payments">Payment Summary</option>
+            </select>
+            <button onclick="loadReport()" class="btn btn-generate">Generate Report</button>
+        </div>
+
+        <div class="report-container">
+            <canvas id="report-chart" width="800" height="400"></canvas>
+        </div>
+    </div>
+
+    <script src="/frontend/js/reports.js"></script>
+</body>
+
+</html>

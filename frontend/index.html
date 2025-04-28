@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>ERP Login</title>
+    <link rel="stylesheet" href="/frontend/css/styles.css" />
+</head>
+
+<body>
+    <div class="login-box">
+        <h2>ERP Login</h2>
+
+        <!-- Wrap in form for semantic purposes -->
+        <form id="loginForm" onsubmit="event.preventDefault(); login()">
+            <input type="text" id="username" placeholder="Username" required />
+            <input type="password" id="password" placeholder="Password" required />
+            <button type="submit">Login</button>
+        </form>
+
+        <!-- Single error message element -->
+        <div id="error" class="error-msg" style="color: red;"></div>
+    </div>
+
+    <!-- JS must come after elements it refers to -->
+    <script src="/frontend/js/auth.js"></script>
+</body>
+
+</html>

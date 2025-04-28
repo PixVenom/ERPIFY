@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Customer Management</title>
+    <link rel="stylesheet" href="/frontend/css/products.css" />
+</head>
+
+<body>
+    <div class="container">
+        <h1>Customer Management</h1>
+
+        <form id="customer-form">
+            <input type="text" id="name" placeholder="Full Name" required />
+            <input type="email" id="email" placeholder="Email" required />
+            <input type="text" id="phone" placeholder="Phone Number" required />
+            <input type="text" id="address" placeholder="Address" required />
+            <button type="submit" class="btn btn-submit">Add Customer</button>
+        </form>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Address</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="customer-table-body"></tbody>
+        </table>
+    </div>
+
+    <script src="/frontend/js/customers.js"></script>
+</body>
+
+</html>

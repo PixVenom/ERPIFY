@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ERP Dashboard</title>
+    <link rel="stylesheet" href="/frontend/css/dashboard.css" />
+</head>
+
+<body>
+    <div class="dashboard-container">
+        <header>
+            <h1>Welcome, <span id="username">Admin</span></h1>
+            <button id="logoutBtn">Logout</button>
+        </header>
+
+        <main class="cards">
+            <div class="card" onclick="navigateTo('products')">
+                <h2>Products</h2>
+            </div>
+            <div class="card" onclick="navigateTo('customers')">
+                <h2>Customers</h2>
+            </div>
+            <div class="card" onclick="navigateTo('orders')">
+                <h2>Orders</h2>
+            </div>
+        </main>
+    </div>
+
+    <script src="/frontend/js/dashboard.js"></script>
+</body>
+
+</html>
