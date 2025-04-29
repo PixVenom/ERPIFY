@@ -6,65 +6,134 @@ from backend.utils.db import get_connection
 
 router = APIRouter()
 
-
-@router.post("/products", response_model=ProductOut, dependencies=[Depends(manager_required)])
+# POST endpoint for creating a new product
+@router.post("/products/", response_model=ProductOut, dependencies=[Depends(manager_required)])
 def create_product(product: ProductCreate):
-    conn = get_connection()
-    cursor = conn.cursor(dictionary=True)
-    cursor.execute("INSERT INTO Products (Name, Category, Price, SupplierID) VALUES (%s, %s, %s, %s)",
-                   (product.name, product.category, product.price, product.supplier_id))
-    conn.commit()
-    cursor.execute("SELECT * FROM Products WHERE ProductID = LAST_INSERT_ID()")
-    new_product = cursor.fetchone()
-    cursor.close()
-    conn.close()
-    return new_product
+    try:
+        conn = get_connection()
+        cursor = conn.cursor(dictionary=True)
+        
+        # Insert product into database
+        cursor.execute("INSERT INTO Products (Name, Category, Price, SupplierID) VALUES (%s, %s, %s, %s)",
+                       (product.name, product.category, product.price, product.supplier_id))
+        conn.commit()
+
+        # Get the newly inserted product
+        cursor.execute("SELECT * FROM Products WHERE ProductID = LAST_INSERT_ID()")
+        new_product = cursor.fetchone()
+        
+        # Close cursor and connection
+        cursor.close()
+        conn.close()
+
+        # Check if the product was successfully created
+        if not new_product:
+            raise HTTPException(status_code=500, detail="Failed to fetch the created product")
+
+        return new_product
+
+    except Exception as e:
+        # Handle any error that occurs during the process
+        raise HTTPException(status_code=500, detail=f"Error creating product: {str(e)}")
 
 
+# GET endpoint for fetching all products
 @router.get("/products", response_model=List[ProductOut], dependencies=[Depends(manager_required)])
 def get_products():
-    conn = get_connection()
-    cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT * FROM Products")
-    products = cursor.fetchall()
-    cursor.close()
-    conn.close()
-    return products
+    try:
+        conn = get_connection()
+        cursor = conn.cursor(dictionary=True)
+
+        # Fetch all products from the database
+        cursor.execute("SELECT * FROM Products")
+        products = cursor.fetchall()
+
+        # Close cursor and connection
+        cursor.close()
+        conn.close()
+
+        return products
+
+    except Exception as e:
+        # Handle any error that occurs during the process
+        raise HTTPException(status_code=500, detail=f"Error fetching products: {str(e)}")
 
 
+# GET endpoint for fetching a specific product by its ID
 @router.get("/products/{product_id}", response_model=ProductOut, dependencies=[Depends(manager_required)])
 def get_product(product_id: int):
-    conn = get_connection()
-    cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT * FROM Products WHERE ProductID = %s", (product_id,))
-    product = cursor.fetchone()
-    cursor.close()
-    conn.close()
-    if not product:
-        raise HTTPException(status_code=404, detail="Product not found")
-    return product
+    try:
+        conn = get_connection()
+        cursor = conn.cursor(dictionary=True)
+
+        # Fetch the product by ID
+        cursor.execute("SELECT * FROM Products WHERE ProductID = %s", (product_id,))
+        product = cursor.fetchone()
+
+        # Close cursor and connection
+        cursor.close()
+        conn.close()
+
+        # If no product found, raise 404 error
+        if not product:
+            raise HTTPException(status_code=404, detail="Product not found")
+
+        return product
+
+    except Exception as e:
+        # Handle any error that occurs during the process
+        raise HTTPException(status_code=500, detail=f"Error fetching product: {str(e)}")
 
 
+# PUT endpoint for updating an existing product
 @router.put("/products/{product_id}", response_model=ProductOut, dependencies=[Depends(manager_required)])
 def update_product(product_id: int, product: ProductCreate):
-    conn = get_connection()
-    cursor = conn.cursor(dictionary=True)
-    cursor.execute("UPDATE Products SET Name=%s, Category=%s, Price=%s, SupplierID=%s WHERE ProductID=%s",
-                   (product.name, product.category, product.price, product.supplier_id, product_id))
-    conn.commit()
-    cursor.execute("SELECT * FROM Products WHERE ProductID = %s", (product_id,))
-    updated_product = cursor.fetchone()
-    cursor.close()
-    conn.close()
-    return updated_product
+    try:
+        conn = get_connection()
+        cursor = conn.cursor(dictionary=True)
+
+        # Update product in the database
+        cursor.execute(
+            "UPDATE Products SET Name=%s, Category=%s, Price=%s, SupplierID=%s WHERE ProductID=%s",
+            (product.name, product.category, product.price, product.supplier_id, product_id)
+        )
+        conn.commit()
+
+        # Fetch the updated product
+        cursor.execute("SELECT * FROM Products WHERE ProductID = %s", (product_id,))
+        updated_product = cursor.fetchone()
+
+        # Close cursor and connection
+        cursor.close()
+        conn.close()
+
+        if not updated_product:
+            raise HTTPException(status_code=404, detail="Product not found")
+
+        return updated_product
+
+    except Exception as e:
+        # Handle any error that occurs during the process
+        raise HTTPException(status_code=500, detail=f"Error updating product: {str(e)}")
 
 
+# DELETE endpoint for deleting a product by ID
 @router.delete("/products/{product_id}", dependencies=[Depends(manager_required)])
 def delete_product(product_id: int):
-    conn = get_connection()
-    cursor = conn.cursor()
-    cursor.execute("DELETE FROM Products WHERE ProductID = %s", (product_id,))
-    conn.commit()
-    cursor.close()
-    conn.close()
-    return {"message": "Product deleted successfully"}
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+
+        # Delete the product from the database
+        cursor.execute("DELETE FROM Products WHERE ProductID = %s", (product_id,))
+        conn.commit()
+
+        # Close cursor and connection
+        cursor.close()
+        conn.close()
+
+        return {"message": "Product deleted successfully"}
+
+    except Exception as e:
+        # Handle any error that occurs during the process
+        raise HTTPException(status_code=500, detail=f"Error deleting product: {str(e)}")

@@ -14,20 +14,20 @@ def register_user(user: UserCreate):
     cursor = conn.cursor(dictionary=True)
     try:
         # Check if username already exists
-        cursor.execute("SELECT * FROM Users WHERE Username = %s", (user.username,))
+        cursor.execute("SELECT * FROM users WHERE user_id = %d", (user.username))
         if cursor.fetchone():
             raise HTTPException(status_code=400, detail="Username already exists")
 
         # Hash password before storing
-        hashed = hash_password(user.password)
+        hashed = hash_password(user.password_hash)
 
         cursor.execute(
-            "INSERT INTO Users (Username, PasswordHash, RoleID) VALUES (%s, %s, %s)",
-            (user.username, hashed, user.role_id)
+            "INSERT INTO users (user_id, username, password_hash, role_id,created_at) VALUES (%d, %s, %s,%d,%s)",
+            (user.user_id, user.username,user.password_hash,user.role_id,user.created_at)
         )
         conn.commit()
 
-        cursor.execute("SELECT * FROM Users WHERE UserID = LAST_INSERT_ID()")
+        cursor.execute("SELECT * FROM users WHERE user_id = LAST_INSERT_ID()")
         return cursor.fetchone()
     finally:
         cursor.close()
@@ -41,7 +41,7 @@ async def login(user: LoginModel):
     conn = get_connection()
     cursor = conn.cursor(dictionary=True)
     try:
-        cursor.execute("SELECT * FROM Users WHERE Username = %s", (user.username,))
+        cursor.execute("SELECT * FROM users WHERE username = %s", (user.username,))
         db_user = cursor.fetchone()
         print("User from DB:", db_user)
     finally:

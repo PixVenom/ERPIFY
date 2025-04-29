@@ -11,10 +11,10 @@ router = APIRouter()
 def create_invoice(invoice: InvoiceCreate):
     conn = get_connection()
     cursor = conn.cursor(dictionary=True)
-    cursor.execute("INSERT INTO Invoices (OrderID, InvoiceDate, TotalAmount, PaymentStatus) VALUES (%s, %s, %s, %s)",
-                   (invoice.order_id, invoice.invoice_date, invoice.total_amount, invoice.payment_status))
+    cursor.execute("INSERT INTO invoices (invoice_id, order_id, invoice_date, total_amount,payment_status) VALUES (%d,%d,%s,%d,%s)",
+                   (invoice.invoice_id,invoice.order_id,invoice.invoice_date,invoice.total_amount,invoice.payment_status))
     conn.commit()
-    cursor.execute("SELECT * FROM Invoices WHERE InvoiceID = LAST_INSERT_ID()")
+    cursor.execute("SELECT * FROM invoices WHERE invoice_id = LAST_INSERT_ID()")
     new_invoice = cursor.fetchone()
     cursor.close()
     conn.close()
@@ -25,7 +25,7 @@ def create_invoice(invoice: InvoiceCreate):
 def get_invoices():
     conn = get_connection()
     cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT * FROM Invoices")
+    cursor.execute("SELECT * FROM invoices")
     invoices = cursor.fetchall()
     cursor.close()
     conn.close()
@@ -36,7 +36,7 @@ def get_invoices():
 def get_invoice(invoice_id: int):
     conn = get_connection()
     cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT * FROM Invoices WHERE InvoiceID = %s", (invoice_id,))
+    cursor.execute("SELECT * FROM invoices WHERE invoice_id = %d", (invoice_id,))
     invoice = cursor.fetchone()
     cursor.close()
     conn.close()
@@ -49,10 +49,10 @@ def get_invoice(invoice_id: int):
 def update_invoice(invoice_id: int, invoice: InvoiceCreate):
     conn = get_connection()
     cursor = conn.cursor(dictionary=True)
-    cursor.execute("UPDATE Invoices SET OrderID=%s, InvoiceDate=%s, TotalAmount=%s, PaymentStatus=%s WHERE InvoiceID=%s",
-                   (invoice.order_id, invoice.invoice_date, invoice.total_amount, invoice.payment_status, invoice_id))
+    cursor.execute("UPDATE invoices SET invoice_id=%d, order_id=%d, invoice_date=%s, total_amount=%d WHERE invoice_id=%d",
+                   (invoice.invoice_id,invoice.order_id,invoice.invoice_date,invoice.total_amount,invoice.payment_status))
     conn.commit()
-    cursor.execute("SELECT * FROM Invoices WHERE InvoiceID = %s", (invoice_id,))
+    cursor.execute("SELECT * FROM invoices WHERE invoice_id = %d", (invoice_id))
     updated_invoice = cursor.fetchone()
     cursor.close()
     conn.close()
@@ -63,7 +63,7 @@ def update_invoice(invoice_id: int, invoice: InvoiceCreate):
 def delete_invoice(invoice_id: int):
     conn = get_connection()
     cursor = conn.cursor()
-    cursor.execute("DELETE FROM Invoices WHERE InvoiceID = %s", (invoice_id,))
+    cursor.execute("DELETE FROM invoices WHERE invoice_id = %d", (invoice_id))
     conn.commit()
     cursor.close()
     conn.close()

@@ -11,10 +11,10 @@ router = APIRouter()
 def create_order(order: OrderCreate):
     conn = get_connection()
     cursor = conn.cursor(dictionary=True)
-    cursor.execute("INSERT INTO Orders (CustomerID, OrderDate, Status) VALUES (%s, %s, %s)",
+    cursor.execute("INSERT INTO orders (CustomerID, OrderDate, Status) VALUES (%s, %s, %s)",
                    (order.customer_id, order.order_date, order.status))
     conn.commit()
-    cursor.execute("SELECT * FROM Orders WHERE OrderID = LAST_INSERT_ID()")
+    cursor.execute("SELECT * FROM orders WHERE OrderID = LAST_INSERT_ID()")
     new_order = cursor.fetchone()
     cursor.close()
     conn.close()
@@ -25,7 +25,7 @@ def create_order(order: OrderCreate):
 def get_orders():
     conn = get_connection()
     cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT * FROM Orders")
+    cursor.execute("SELECT * FROM orders")
     orders = cursor.fetchall()
     cursor.close()
     conn.close()
@@ -36,7 +36,7 @@ def get_orders():
 def get_order(order_id: int):
     conn = get_connection()
     cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT * FROM Orders WHERE OrderID = %s", (order_id,))
+    cursor.execute("SELECT * FROM orders WHERE OrderID = %s", (order_id,))
     order = cursor.fetchone()
     cursor.close()
     conn.close()
@@ -49,10 +49,10 @@ def get_order(order_id: int):
 def update_order(order_id: int, order: OrderCreate):
     conn = get_connection()
     cursor = conn.cursor(dictionary=True)
-    cursor.execute("UPDATE Orders SET CustomerID=%s, OrderDate=%s, Status=%s WHERE OrderID=%s",
+    cursor.execute("UPDATE orders SET CustomerID=%s, OrderDate=%s, Status=%s WHERE OrderID=%s",
                    (order.customer_id, order.order_date, order.status, order_id))
     conn.commit()
-    cursor.execute("SELECT * FROM Orders WHERE OrderID = %s", (order_id,))
+    cursor.execute("SELECT * FROM orders WHERE OrderID = %s", (order_id,))
     updated_order = cursor.fetchone()
     cursor.close()
     conn.close()
@@ -63,7 +63,7 @@ def update_order(order_id: int, order: OrderCreate):
 def delete_order(order_id: int):
     conn = get_connection()
     cursor = conn.cursor()
-    cursor.execute("DELETE FROM Orders WHERE OrderID = %s", (order_id,))
+    cursor.execute("DELETE FROM orders WHERE OrderID = %s", (order_id,))
     conn.commit()
     cursor.close()
     conn.close()

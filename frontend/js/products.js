@@ -2,7 +2,7 @@ const form = document.getElementById("product-form");
 const tableBody = document.getElementById("product-table-body");
 const token = localStorage.getItem("token");
 
-const apiURL = "http://localhost:8000/products";
+const apiURL = "http://localhost:8000/products"; // Correct backend API URL
 
 document.addEventListener("DOMContentLoaded", fetchProducts);
 
@@ -12,12 +12,12 @@ form.addEventListener("submit", async function (e) {
     const newProduct = {
         name: document.getElementById("product-name").value,
         price: parseFloat(document.getElementById("product-price").value),
-        quantity: parseInt(document.getElementById("product-quantity").value),
-        category: document.getElementById("product-category").value
+        category: document.getElementById("product-category").value,
+        supplier_id: parseInt(document.getElementById("product-supplier-id").value)
     };
 
     try {
-        const res = await fetch(apiURL + "/", {
+        const res = await fetch(apiURL, { // Fixed extra "/" here
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -27,10 +27,10 @@ form.addEventListener("submit", async function (e) {
         });
 
         if (res.ok) {
-            fetchProducts();
+            await fetchProducts();
             form.reset();
         } else {
-            const data = await res.json();
+            const data = await res.json().catch(() => ({}));
             alert(data.detail || "Failed to add product.");
         }
     } catch (err) {
@@ -41,31 +41,46 @@ form.addEventListener("submit", async function (e) {
 
 async function fetchProducts() {
     try {
-        const res = await fetch(apiURL + "/", {
+        const res = await fetch(apiURL, {
             headers: {
                 Authorization: `Bearer ${token}`
             }
         });
+
+        if (!res.ok) {
+            throw new Error(`Failed to fetch products: ${res.status}`);
+        }
+
         const products = await res.json();
         renderTable(products);
     } catch (err) {
         console.error("Error fetching products:", err);
+        alert("Failed to load products.");
+        renderTable([]); // Ensure empty table is rendered when there's an error
     }
 }
 
 function renderTable(products) {
     tableBody.innerHTML = "";
+
+    if (products.length === 0) {
+        const row = document.createElement("tr");
+        row.innerHTML = "<td colspan='6'>No products available</td>";
+        tableBody.appendChild(row);
+        return;
+    }
+
     products.forEach((product) => {
         const row = document.createElement("tr");
         row.innerHTML = `
-            <td>${product.id}</td>
+            <td>${product.product_id}</td>
             <td>${product.name}</td>
-            <td>$${product.price}</td>
-            <td>${product.quantity}</td>
+            <td>₹${product.price}</td>
             <td>${product.category}</td>
+            <td>${product.supplier_id}</td>
             <td>
-                <button onclick="editProduct(${product.id})">Edit</button>
-                <button onclick="deleteProduct(${product.id})">Delete</button>
+                <button onclick="editProduct(${product.product_id})">Edit</button>
+                <button onclick="deleteProduct(${product.product_id})">Delete</button>
             </td>
         `;
         tableBody.appendChild(row);
@@ -73,6 +88,8 @@ function renderTable(products) {
 }
 
 async function deleteProduct(id) {
+    if (!confirm("Are you sure you want to delete this product?")) return;
+
     try {
         const res = await fetch(`${apiURL}/${id}`, {
             method: "DELETE",
@@ -80,8 +97,9 @@ async function deleteProduct(id) {
                 Authorization: `Bearer ${token}`
             }
         });
+
         if (res.ok) {
-            fetchProducts();
+            await fetchProducts();
         } else {
             alert("Failed to delete product.");
         }
@@ -94,10 +112,15 @@ async function deleteProduct(id) {
 async function editProduct(id) {
     const name = prompt("Enter new product name:");
     const price = prompt("Enter new price:");
-    const quantity = prompt("Enter new quantity:");
     const category = prompt("Enter new category:");
+    const supplier_id = prompt("Enter new supplier ID:");
 
-    const updatedProduct = { name, price: parseFloat(price), quantity: parseInt(quantity), category };
+    const updatedProduct = {
+        name,
+        price: parseFloat(price),
+        category,
+        supplier_id: parseInt(supplier_id)
+    };
 
     try {
         const res = await fetch(`${apiURL}/${id}`, {
@@ -110,7 +133,7 @@ async function editProduct(id) {
         });
 
         if (res.ok) {
-            fetchProducts();
+            await fetchProducts();
         } else {
             alert("Failed to update product.");
         }

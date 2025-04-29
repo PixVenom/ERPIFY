@@ -11,10 +11,10 @@ router = APIRouter()
 def create_customer(customer: CustomerCreate):
     conn = get_connection()
     cursor = conn.cursor(dictionary=True)
-    cursor.execute("INSERT INTO Customers (Name, Email, Phone, Address) VALUES (%s, %s, %s, %s)",
-                   (customer.name, customer.email, customer.phone, customer.address))
+    cursor.execute("INSERT INTO customers (customer_id,name,email,phone,address) VALUES (%s, %s, %s, %s,%s)",
+                   (customer.customer_id,customer.name,customer.email,customer.phone,customer.address))
     conn.commit()
-    cursor.execute("SELECT * FROM Customers WHERE CustomerID = LAST_INSERT_ID()")
+    cursor.execute("SELECT * FROM customers WHERE customer_id = LAST_INSERT_ID()")
     new_customer = cursor.fetchone()
     cursor.close()
     conn.close()
@@ -25,7 +25,7 @@ def create_customer(customer: CustomerCreate):
 def get_customers():
     conn = get_connection()
     cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT * FROM Customers")
+    cursor.execute("SELECT * FROM customers")
     customers = cursor.fetchall()
     cursor.close()
     conn.close()
@@ -36,7 +36,7 @@ def get_customers():
 def get_customer(customer_id: int):
     conn = get_connection()
     cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT * FROM Customers WHERE CustomerID = %s", (customer_id,))
+    cursor.execute("SELECT * FROM customers WHERE customer_id = %s", (customer_id,))
     customer = cursor.fetchone()
     cursor.close()
     conn.close()
@@ -49,10 +49,10 @@ def get_customer(customer_id: int):
 def update_customer(customer_id: int, customer: CustomerCreate):
     conn = get_connection()
     cursor = conn.cursor(dictionary=True)
-    cursor.execute("UPDATE Customers SET Name=%s, Email=%s, Phone=%s, Address=%s WHERE CustomerID=%s",
+    cursor.execute("UPDATE customers SET customer_id=%d, name=%s, email=%s, phone=%d WHERE customer_id=%d",
                    (customer.name, customer.email, customer.phone, customer.address, customer_id))
     conn.commit()
-    cursor.execute("SELECT * FROM Customers WHERE CustomerID = %s", (customer_id,))
+    cursor.execute("SELECT * FROM customers WHERE customer_id = %d", (customer_id,))
     updated_customer = cursor.fetchone()
     cursor.close()
     conn.close()
@@ -63,7 +63,7 @@ def update_customer(customer_id: int, customer: CustomerCreate):
 def delete_customer(customer_id: int):
     conn = get_connection()
     cursor = conn.cursor()
-    cursor.execute("DELETE FROM Customers WHERE CustomerID = %s", (customer_id,))
+    cursor.execute("DELETE FROM customers WHERE customer_id = %d", (customer_id,))
     conn.commit()
     cursor.close()
     conn.close()

@@ -9,6 +9,7 @@ import os
 import sys
 from backend.database import engine
 from backend.models.models import Base  # Corrected import
+from backend.routes import products
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
@@ -27,10 +28,12 @@ Base.metadata.create_all(bind=engine)  # Corrected to use 'Base'
 # FastAPI app setup
 app = FastAPI()
 
+app.include_router(products.router, prefix="/products",tags=["Products"])
+
 # CORS config (adjust origin if needed)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://127.0.0.1:5500"],
+    allow_origins=["http://127.0.0.1:5500","http://localhost:5500"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
