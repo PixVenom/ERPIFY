@@ -12,10 +12,10 @@ router = APIRouter()
 def create_user(user: UserCreate):
     conn = get_connection()
     cursor = conn.cursor(dictionary=True)
-    cursor.execute("INSERT INTO Users (Username, PasswordHash, RoleID) VALUES (%s, %s, %s)",
+    cursor.execute("INSERT INTO users (user_id, username, password_hash, role_id, created_at) VALUES (%d,%s,%s,%d,%s)",
                    (user.username, user.password_hash, user.role_id))
     conn.commit()
-    cursor.execute("SELECT * FROM Users WHERE UserID = LAST_INSERT_ID()")
+    cursor.execute("SELECT * FROM users WHERE user_id = LAST_INSERT_ID()")
     new_user = cursor.fetchone()
     cursor.close()
     conn.close()
@@ -25,7 +25,7 @@ def create_user(user: UserCreate):
 def get_users():
     conn = get_connection()
     cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT * FROM Users")
+    cursor.execute("SELECT * FROM users")
     users = cursor.fetchall()
     cursor.close()
     conn.close()
@@ -36,7 +36,7 @@ def get_users():
 def get_user(user_id: int):
     conn = get_connection()
     cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT * FROM Users WHERE UserID = %s", (user_id,))
+    cursor.execute("SELECT * FROM users WHERE user_id = %d", (user_id,))
     user = cursor.fetchone()
     cursor.close()
     conn.close()
@@ -49,10 +49,10 @@ def get_user(user_id: int):
 def update_user(user_id: int, user: UserCreate):
     conn = get_connection()
     cursor = conn.cursor(dictionary=True)
-    cursor.execute("UPDATE Users SET Username=%s, PasswordHash=%s, RoleID=%s WHERE UserID=%s",
+    cursor.execute("UPDATE users SET username=%s, password_hash=%s, role_id=%d WHERE user_id=%d",
                    (user.username, user.password_hash, user.role_id, user_id))
     conn.commit()
-    cursor.execute("SELECT * FROM Users WHERE UserID = %s", (user_id,))
+    cursor.execute("SELECT * FROM users WHERE user_id = %d", (user_id,))
     updated_user = cursor.fetchone()
     cursor.close()
     conn.close()
@@ -63,7 +63,7 @@ def update_user(user_id: int, user: UserCreate):
 def delete_user(user_id: int):
     conn = get_connection()
     cursor = conn.cursor()
-    cursor.execute("DELETE FROM Users WHERE UserID = %s", (user_id,))
+    cursor.execute("DELETE FROM users WHERE user_id = %d", (user_id,))
     conn.commit()
     cursor.close()
     conn.close()

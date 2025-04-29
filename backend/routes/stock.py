@@ -11,10 +11,10 @@ router = APIRouter()
 def add_stock(stock: StockCreate):
     conn = get_connection()
     cursor = conn.cursor(dictionary=True)
-    cursor.execute("INSERT INTO Stock (ProductID, Quantity) VALUES (%s, %s)",
+    cursor.execute("INSERT INTO stock (stock_id, product_id, quantity, last_updated) VALUES (%d,%d,%d,%s)",
                    (stock.product_id, stock.quantity))
     conn.commit()
-    cursor.execute("SELECT * FROM Stock WHERE StockID = LAST_INSERT_ID()")
+    cursor.execute("SELECT * FROM stock WHERE stock_id = LAST_INSERT_ID()")
     new_stock = cursor.fetchone()
     cursor.close()
     conn.close()
@@ -25,7 +25,7 @@ def add_stock(stock: StockCreate):
 def get_all_stock():
     conn = get_connection()
     cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT * FROM Stock")
+    cursor.execute("SELECT * FROM stock")
     stock_list = cursor.fetchall()
     cursor.close()
     conn.close()
@@ -36,7 +36,7 @@ def get_all_stock():
 def get_stock(stock_id: int):
     conn = get_connection()
     cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT * FROM Stock WHERE StockID = %s", (stock_id,))
+    cursor.execute("SELECT * FROM stock WHERE stock_id = %d", (stock_id,))
     stock = cursor.fetchone()
     cursor.close()
     conn.close()
@@ -49,10 +49,10 @@ def get_stock(stock_id: int):
 def update_stock(stock_id: int, stock: StockCreate):
     conn = get_connection()
     cursor = conn.cursor(dictionary=True)
-    cursor.execute("UPDATE Stock SET ProductID=%s, Quantity=%s WHERE StockID=%s",
-                   (stock.product_id, stock.quantity, stock_id))
+    cursor.execute("UPDATE stock SET product_id=%d, quantity=%d WHERE stock_id=%d",
+                   (stock.product_id, stock.quantity, stock.stock_id))
     conn.commit()
-    cursor.execute("SELECT * FROM Stock WHERE StockID = %s", (stock_id,))
+    cursor.execute("SELECT * FROM stock WHERE stock_id = %d", (stock_id,))
     updated_stock = cursor.fetchone()
     cursor.close()
     conn.close()
@@ -63,7 +63,7 @@ def update_stock(stock_id: int, stock: StockCreate):
 def delete_stock(stock_id: int):
     conn = get_connection()
     cursor = conn.cursor()
-    cursor.execute("DELETE FROM Stock WHERE StockID = %s", (stock_id,))
+    cursor.execute("DELETE FROM stock WHERE stock_id = %d", (stock_id,))
     conn.commit()
     cursor.close()
     conn.close()

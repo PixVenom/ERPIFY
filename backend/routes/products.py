@@ -14,12 +14,12 @@ def create_product(product: ProductCreate):
         cursor = conn.cursor(dictionary=True)
         
         # Insert product into database
-        cursor.execute("INSERT INTO Products (Name, Category, Price, SupplierID) VALUES (%s, %s, %s, %s)",
-                       (product.name, product.category, product.price, product.supplier_id))
+        cursor.execute("INSERT INTO products (product_id, name, category, price, supplier_id) VALUES (%d, %s, %s, %d, %d)",
+                       (product.product_id,product.name,product.category,product.category,product.price,product.supplier_id))
         conn.commit()
 
         # Get the newly inserted product
-        cursor.execute("SELECT * FROM Products WHERE ProductID = LAST_INSERT_ID()")
+        cursor.execute("SELECT * FROM products WHERE product_id = LAST_INSERT_ID()")
         new_product = cursor.fetchone()
         
         # Close cursor and connection
@@ -45,7 +45,7 @@ def get_products():
         cursor = conn.cursor(dictionary=True)
 
         # Fetch all products from the database
-        cursor.execute("SELECT * FROM Products")
+        cursor.execute("SELECT * FROM products")
         products = cursor.fetchall()
 
         # Close cursor and connection
@@ -67,7 +67,7 @@ def get_product(product_id: int):
         cursor = conn.cursor(dictionary=True)
 
         # Fetch the product by ID
-        cursor.execute("SELECT * FROM Products WHERE ProductID = %s", (product_id,))
+        cursor.execute("SELECT * FROM products WHERE product_id = %d", (product_id,))
         product = cursor.fetchone()
 
         # Close cursor and connection
@@ -94,13 +94,13 @@ def update_product(product_id: int, product: ProductCreate):
 
         # Update product in the database
         cursor.execute(
-            "UPDATE Products SET Name=%s, Category=%s, Price=%s, SupplierID=%s WHERE ProductID=%s",
+            "UPDATE products SET product_id=%d, name=%s, category=%s, price=%d, supplier_id=%d WHERE product_id=%d",
             (product.name, product.category, product.price, product.supplier_id, product_id)
         )
         conn.commit()
 
         # Fetch the updated product
-        cursor.execute("SELECT * FROM Products WHERE ProductID = %s", (product_id,))
+        cursor.execute("SELECT * FROM products WHERE product_id = %d", (product_id,))
         updated_product = cursor.fetchone()
 
         # Close cursor and connection
@@ -125,7 +125,7 @@ def delete_product(product_id: int):
         cursor = conn.cursor()
 
         # Delete the product from the database
-        cursor.execute("DELETE FROM Products WHERE ProductID = %s", (product_id,))
+        cursor.execute("DELETE FROM products WHERE product_id = %d", (product_id,))
         conn.commit()
 
         # Close cursor and connection

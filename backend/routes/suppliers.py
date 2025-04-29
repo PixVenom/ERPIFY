@@ -11,10 +11,10 @@ router = APIRouter()
 def create_supplier(supplier: SupplierCreate):
     conn = get_connection()
     cursor = conn.cursor(dictionary=True)
-    cursor.execute("INSERT INTO Suppliers (Name, Email, Phone, Address) VALUES (%s, %s, %s, %s)",
+    cursor.execute("INSERT INTO suppliers (supplier_id, name, email, phone, address) VALUES (%d,%s,%s,%d,%s)",
                    (supplier.name, supplier.email, supplier.phone, supplier.address))
     conn.commit()
-    cursor.execute("SELECT * FROM Suppliers WHERE SupplierID = LAST_INSERT_ID()")
+    cursor.execute("SELECT * FROM suppliers WHERE supplier_id = LAST_INSERT_ID()")
     new_supplier = cursor.fetchone()
     cursor.close()
     conn.close()
@@ -25,7 +25,7 @@ def create_supplier(supplier: SupplierCreate):
 def get_suppliers():
     conn = get_connection()
     cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT * FROM Suppliers")
+    cursor.execute("SELECT * FROM suppliers")
     suppliers = cursor.fetchall()
     cursor.close()
     conn.close()
@@ -36,7 +36,7 @@ def get_suppliers():
 def get_supplier(supplier_id: int):
     conn = get_connection()
     cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT * FROM Suppliers WHERE SupplierID = %s", (supplier_id,))
+    cursor.execute("SELECT * FROM suppliers WHERE supplier_id = %d", (supplier_id,))
     supplier = cursor.fetchone()
     cursor.close()
     conn.close()
@@ -49,10 +49,10 @@ def get_supplier(supplier_id: int):
 def update_supplier(supplier_id: int, supplier: SupplierCreate):
     conn = get_connection()
     cursor = conn.cursor(dictionary=True)
-    cursor.execute("UPDATE Suppliers SET Name=%s, Email=%s, Phone=%s, Address=%s WHERE SupplierID=%s",
+    cursor.execute("UPDATE suppliers SET name=%s, email=%s, phone=%s, address=%s WHERE supplier_id=%d",
                    (supplier.name, supplier.email, supplier.phone, supplier.address, supplier_id))
     conn.commit()
-    cursor.execute("SELECT * FROM Suppliers WHERE SupplierID = %s", (supplier_id,))
+    cursor.execute("SELECT * FROM suppliers WHERE supplier_id = %d", (supplier_id,))
     updated_supplier = cursor.fetchone()
     cursor.close()
     conn.close()
@@ -63,7 +63,7 @@ def update_supplier(supplier_id: int, supplier: SupplierCreate):
 def delete_supplier(supplier_id: int):
     conn = get_connection()
     cursor = conn.cursor()
-    cursor.execute("DELETE FROM Suppliers WHERE SupplierID = %s", (supplier_id,))
+    cursor.execute("DELETE FROM suppliers WHERE supplier_id = %d", (supplier_id,))
     conn.commit()
     cursor.close()
     conn.close()
