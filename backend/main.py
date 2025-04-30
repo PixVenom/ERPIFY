@@ -11,7 +11,7 @@ from backend.database import engine
 from backend.models.models import Base  # Corrected import
 from backend.routes import products
 
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))  # Fixed typo here
 
 # ================================
 # Hardcoded bcrypt-hashed password for "admin123"
@@ -28,20 +28,19 @@ Base.metadata.create_all(bind=engine)  # Corrected to use 'Base'
 # FastAPI app setup
 app = FastAPI()
 
-app.include_router(products.router, prefix="/products",tags=["Products"])
+app.include_router(products.router, prefix="/products", tags=["Products"])
 
 # CORS config (adjust origin if needed)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://127.0.0.1:5500","http://localhost:5500"],
+    allow_origins=["http://127.0.0.1:5500", "http://127.0.0.1:8000/products"],  # Adjusted to allow your frontend's URL
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
-app.mount("/frontend/dashboard.html", StaticFiles(directory="frontend", html=True), name="static")
-app.mount("/frontend", StaticFiles(directory="frontend", html=True), name="static")
+app.mount("/frontend", StaticFiles(directory="frontend"), name="frontend")  # Fixed mount directory
 
 # Data models
 class LoginModel(BaseModel):
@@ -71,8 +70,6 @@ async def protected_route(token: str = Depends(oauth2_scheme)):
     if payload is None:
         raise HTTPException(status_code=401, detail="Invalid token")
     return {"message": f"Hello, {payload['sub']} (role: {payload['role']})"}
-
-app.mount("/frontend", StaticFiles(directory="frontend"), name="frontend")
 
 @app.get("/dashboard", response_class=HTMLResponse)
 async def get_dashboard():

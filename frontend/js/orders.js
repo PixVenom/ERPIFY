@@ -1,7 +1,7 @@
 const form = document.getElementById("order-form");
 const tableBody = document.getElementById("order-table-body");
 const token = localStorage.getItem("token");
-const apiURL = "http://localhost:8000/orders";
+const apiURL = "http://localhost:8000/docs";
 
 document.addEventListener("DOMContentLoaded", fetchOrders);
 

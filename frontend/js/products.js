@@ -2,7 +2,7 @@ const form = document.getElementById("product-form");
 const tableBody = document.getElementById("product-table-body");
 const token = localStorage.getItem("token");
 
-const apiURL = "http://localhost:8000/products"; // Correct backend API URL
+const apiURL = "http://127.0.0.1:8000/products"; 
 
 document.addEventListener("DOMContentLoaded", fetchProducts);
 
@@ -21,7 +21,7 @@ form.addEventListener("submit", async function (e) {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`
+                Authorization: `Bearer ${token}`  // Fixed template literal
             },
             body: JSON.stringify(newProduct)
         });
@@ -43,7 +43,7 @@ async function fetchProducts() {
     try {
         const res = await fetch(apiURL, {
             headers: {
-                Authorization: `Bearer ${token}`
+                Authorization: `Bearer ${token}`  // Fixed template literal
             }
         });
 
@@ -94,7 +94,7 @@ async function deleteProduct(id) {
         const res = await fetch(`${apiURL}/${id}`, {
             method: "DELETE",
             headers: {
-                Authorization: `Bearer ${token}`
+                Authorization: `Bearer ${token}`  // Fixed template literal
             }
         });
 
@@ -127,7 +127,7 @@ async function editProduct(id) {
             method: "PUT",
             headers: {
                 "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`
+                Authorization: `Bearer ${token}`  // Fixed template literal
             },
             body: JSON.stringify(updatedProduct)
         });

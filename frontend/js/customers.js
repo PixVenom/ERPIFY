@@ -1,7 +1,7 @@
 const form = document.getElementById("customer-form");
 const tableBody = document.getElementById("customer-table-body");
 const token = localStorage.getItem("token");
-const apiURL = "http://localhost:8000/customers";
+const apiURL = "http://localhost:8000/docs";
 
 document.addEventListener("DOMContentLoaded", fetchCustomers);
 
