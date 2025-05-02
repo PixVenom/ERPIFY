@@ -111,3 +111,16 @@ class InvoiceOut(BaseModel):
     invoice_date: date
     total_amount: float
     payment_status: str
+    
+# ---------shipping------------
+
+class shippingCreate(BaseModel):
+    invoice_id: int
+    shipping_date: date
+    shipping_status: str
+    
+class shiipingOut(BaseModel):
+    shipping_id: int
+    invoice_id: int
+    shipping_date: date
+    shipping_status: str

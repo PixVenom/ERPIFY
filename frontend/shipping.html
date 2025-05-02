@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Shipping Management</title>
+    <link rel="stylesheet" href="/frontend/css/shipping.css">
+</head>
+
+<body>
+    <div class="dashboard-container">
+        <header>
+            <h1>Shipping Dashboard</h1>
+            <button onclick="logout()">Logout</button>
+        </header>
+
+        <main>
+            <form id="shipping-form">
+                <input type="number" id="invoice-id" placeholder="Invoice ID" required />
+                <input type="date" id="shipping-date" required />
+                <input type="text" id="shipping-status" placeholder="Shipping Status" required />
+                <button type="submit">Add Shipping Record</button>
+            </form>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Shipping ID</th>
+                        <th>Invoice ID</th>
+                        <th>Shipping Date</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="shipping-table-body"></tbody>
+            </table>
+        </main>
+    </div>
+
+    <script src="/frontend/js/shipping.js"></script>
+</body>
+
+</html>
