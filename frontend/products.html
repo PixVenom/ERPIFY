@@ -1,49 +1,35 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Products - ERP Dashboard</title>
-    <link rel="stylesheet" href="/frontend/css/products.css" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Products - ERP Dashboard</title>
+  <link rel="stylesheet" href="/frontend/css/products.css" />
 </head>
 
 <body>
-    <div class="dashboard-container">
-        <header>
-            <h1>Products</h1>
-            <button id="logoutBtn" onclick="logout()">Logout</button>
-        </header>
-
-        <main>
-            <form id="product-form">
-                <input type="text" id="product-name" placeholder="Product Name" required />
-                <input type="number" id="product-price" placeholder="Price" required />
-                <input type="text" id="product-category" placeholder="Category" required />
-                <input type="number" id="product-supplier-id" name="supplier_id" placeholder="Supplier ID" required />
-                <input type="number" id="product-quantity" placeholder="Quantity" required />
-                <button type="submit">Add Product</button>
-            </form>
-
-            <table>
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Name</th>
-                        <th>Price</th>
-                        <th>Quantity</th>
-                        <th>Category</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="product-table-body">
-                    <!-- Products will be inserted here -->
-                </tbody>
-            </table>
-        </main>
+  <div class="container">
+    <div class="logout">
+      <button onclick="logout()">Logout</button>
     </div>
 
-    <script src="/frontend/js/products.js"></script>
-</body>
+    <h2>Product Management</h2>
 
+    <form id="product-form">
+      <input type="text" id="product-name" placeholder="Product Name" required />
+      <input type="number" id="product-price" placeholder="Price" required />
+      <input type="text" id="product-category" placeholder="Category" required />
+      <input type="number" id="product-supplier-id" name="supplier_id" placeholder="Supplier ID" required />
+      <input type="number" id="product-quantity" placeholder="Quantity" required />
+      <button type="submit">Add Product</button>
+    </form>
+
+    <div class="cards" id="product-card-container">
+      <!-- Cards will be dynamically injected here by JS -->
+    </div>
+  </div>
+  <div id="toast" class="toast">Product Added</div>
+
+  <script src="/frontend/js/products.js"></script>
+</body>
 </html>

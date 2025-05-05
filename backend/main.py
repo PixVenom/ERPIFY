@@ -28,7 +28,7 @@ Base.metadata.create_all(bind=engine)  # Corrected to use 'Base'
 # FastAPI app setup
 app = FastAPI()
 
-app.include_router(products.router, prefix="/products", tags=["Products"])
+app.include_router(products.router, tags=["Products"])
 
 # CORS config (adjust origin if needed)
 app.add_middleware(

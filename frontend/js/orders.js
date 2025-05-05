@@ -1,12 +1,19 @@
 const form = document.getElementById("order-form");
 const tableBody = document.getElementById("order-table-body");
 const token = localStorage.getItem("token");
-const apiURL = "http://localhost:8000/docs";
+const apiURL = "http://localhost:8000/docs"; // API endpoint URL
 
 document.addEventListener("DOMContentLoaded", fetchOrders);
 
+// Handle form submission to add a new order
 form.addEventListener("submit", async function (e) {
     e.preventDefault();
+
+    // Validate form fields
+    if (!form.checkValidity()) {
+        alert("Please fill out all fields correctly.");
+        return;
+    }
 
     const newOrder = {
         product_id: parseInt(document.getElementById("order-product-id").value),
@@ -30,13 +37,16 @@ form.addEventListener("submit", async function (e) {
             fetchOrders();
             form.reset();
         } else {
-            alert("Failed to place order.");
+            const error = await res.json();
+            alert(`Failed to place order: ${error.message || "Unknown error"}`);
         }
     } catch (err) {
         console.error(err);
+        alert("An error occurred while placing the order.");
     }
 });
 
+// Fetch orders and render them in the table
 async function fetchOrders() {
     try {
         const res = await fetch(apiURL + "/", {
@@ -44,13 +54,19 @@ async function fetchOrders() {
                 Authorization: `Bearer ${token}`
             }
         });
-        const orders = await res.json();
-        renderTable(orders);
+        if (res.ok) {
+            const orders = await res.json();
+            renderTable(orders);
+        } else {
+            alert("Failed to fetch orders.");
+        }
     } catch (err) {
         console.error("Error fetching orders:", err);
+        alert("An error occurred while fetching orders.");
     }
 }
 
+// Render orders in the table
 function renderTable(orders) {
     tableBody.innerHTML = "";
     orders.forEach((order) => {
@@ -71,7 +87,11 @@ function renderTable(orders) {
     });
 }
 
+// Delete order
 async function deleteOrder(id) {
+    const confirmDelete = confirm("Are you sure you want to delete this order?");
+    if (!confirmDelete) return;
+
     try {
         const res = await fetch(`${apiURL}/${id}`, {
             method: "DELETE",
@@ -82,19 +102,27 @@ async function deleteOrder(id) {
         if (res.ok) {
             fetchOrders();
         } else {
-            alert("Failed to delete order.");
+            const error = await res.json();
+            alert(`Failed to delete order: ${error.message || "Unknown error"}`);
         }
     } catch (err) {
         console.error(err);
+        alert("An error occurred while deleting the order.");
     }
 }
 
+// Edit order
 async function editOrder(id) {
     const product_id = prompt("Enter new product ID:");
     const customer_id = prompt("Enter new customer ID:");
     const quantity = prompt("Enter new quantity:");
     const order_date = prompt("Enter new order date (YYYY-MM-DD):");
     const status = prompt("Enter new status:");
+
+    if (!product_id || !customer_id || !quantity || !order_date || !status) {
+        alert("Please fill out all fields.");
+        return;
+    }
 
     const updatedOrder = {
         product_id: parseInt(product_id),
@@ -117,9 +145,11 @@ async function editOrder(id) {
         if (res.ok) {
             fetchOrders();
         } else {
-            alert("Failed to update order.");
+            const error = await res.json();
+            alert(`Failed to update order: ${error.message || "Unknown error"}`);
         }
     } catch (err) {
         console.error(err);
+        alert("An error occurred while updating the order.");
     }
 }

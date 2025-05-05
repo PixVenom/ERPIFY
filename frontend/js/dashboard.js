@@ -1,9 +1,10 @@
+// Ensure the user is logged in
 const token = localStorage.getItem("token");
 
 if (!token) {
     window.location.href = "/frontend/index.html"; // Redirect if not logged in
 } else {
-    const username = localStorage.getItem("username") || "User";
+    const username = localStorage.getItem("username") || "User"; // Default to "User" if username is not found
     document.getElementById("username").innerText = username;
 }
 

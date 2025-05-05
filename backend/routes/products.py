@@ -6,19 +6,18 @@ from backend.utils.db import get_connection
 
 router = APIRouter()
 
-
-@router.post("/products/", response_model=ProductOut, dependencies=[Depends(manager_required)])
+# Create product
+@router.post("/products", response_model=ProductOut, dependencies=[Depends(manager_required)])
 def create_product(product: ProductCreate):
     try:
         conn = get_connection()
         cursor = conn.cursor(dictionary=True)
 
         insert_query = """
-        INSERT INTO products (product_id, name, category, price, supplier_id)
-        VALUES (%s, %s, %s, %s, %s)
+        INSERT INTO products (name, category, price, supplier_id)
+        VALUES (%s, %s, %s, %s)
         """
         cursor.execute(insert_query, (
-            product.product_id,
             product.name,
             product.category,
             product.price,
@@ -26,21 +25,19 @@ def create_product(product: ProductCreate):
         ))
         conn.commit()
 
-        cursor.execute("SELECT * FROM products WHERE product_id = %s", (product.product_id,))
+        product_id = cursor.lastrowid
+        cursor.execute("SELECT * FROM products WHERE product_id = %s", (product_id,))
         new_product = cursor.fetchone()
 
         cursor.close()
         conn.close()
-
-        if not new_product:
-            raise HTTPException(status_code=500, detail="Failed to fetch the created product")
 
         return new_product
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error creating product: {str(e)}")
 
-
+# Get all products
 @router.get("/products", response_model=List[ProductOut], dependencies=[Depends(manager_required)])
 def get_products():
     try:
@@ -58,7 +55,7 @@ def get_products():
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error fetching products: {str(e)}")
 
-
+# Get a single product
 @router.get("/products/{product_id}", response_model=ProductOut, dependencies=[Depends(manager_required)])
 def get_product(product_id: int):
     try:
@@ -79,7 +76,7 @@ def get_product(product_id: int):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error fetching product: {str(e)}")
 
-
+# Update a product
 @router.put("/products/{product_id}", response_model=ProductOut, dependencies=[Depends(manager_required)])
 def update_product(product_id: int, product: ProductCreate):
     try:
@@ -113,7 +110,7 @@ def update_product(product_id: int, product: ProductCreate):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error updating product: {str(e)}")
 
-
+# Delete a product
 @router.delete("/products/{product_id}", dependencies=[Depends(manager_required)])
 def delete_product(product_id: int):
     try:

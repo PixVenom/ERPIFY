@@ -9,39 +9,40 @@
 </head>
 
 <body>
-    <div class="container">
-        <h1>Employee Management</h1>
+    <div class="dashboard-container">
+        <header>
+            <h1>Employee Management</h1>
+            <button id="logoutBtn" class="btn btn-logout">Logout</button>
+        </header>
 
-        <form id="employee-form">
-            <input type="text" id="employee-id" placeholder="Employee ID" required />
-            <input type="text" id="employee-name" placeholder="Full Name" required />
-            <input type="text" id="position" placeholder="Position" required />
-            <input type="email" id="email" placeholder="Email" required />
-            <input type="text" id="phone" placeholder="Phone Number" required />
-            <select id="department">
-                <option value="HR">HR</option>
-                <option value="Sales">Sales</option>
-                <option value="Finance">Finance</option>
-                <option value="IT">IT</option>
-                <option value="Operations">Operations</option>
-            </select>
-            <button type="submit" class="btn btn-submit">Add Employee</button>
-        </form>
+        <div class="form-container">
+            <h2>Add New Employee</h2>
+            <form id="employee-form">
+                <div class="input-group">
+                    <input type="text" id="employee-id" placeholder="Employee ID" required />
+                    <input type="text" id="employee-name" placeholder="Full Name" required />
+                </div>
+                <div class="input-group">
+                    <input type="text" id="position" placeholder="Position" required />
+                    <input type="email" id="email" placeholder="Email" required />
+                </div>
+                <div class="input-group">
+                    <input type="text" id="phone" placeholder="Phone Number" required />
+                    <select id="department" required>
+                        <option value="HR">HR</option>
+                        <option value="Sales">Sales</option>
+                        <option value="Finance">Finance</option>
+                        <option value="IT">IT</option>
+                        <option value="Operations">Operations</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-submit">Add Employee</button>
+            </form>
+        </div>
 
-        <table>
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Name</th>
-                    <th>Position</th>
-                    <th>Email</th>
-                    <th>Phone</th>
-                    <th>Department</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody id="employee-table-body"></tbody>
-        </table>
+        <div class="cards-container" id="employee-table-container">
+            <!-- Dynamically populated employee cards will go here -->
+        </div>
     </div>
 
     <script src="/frontend/js/employees.js"></script>

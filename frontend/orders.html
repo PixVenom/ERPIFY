@@ -9,31 +9,33 @@
 </head>
 
 <body>
-    <div class="container">
-        <h1>Order Management</h1>
+    <div class="dashboard-container">
+        <header>
+            <h1>Order Management</h1>
+            <button id="logoutBtn" class="btn btn-logout">Logout</button>
+        </header>
 
-        <form id="order-form">
-            <input type="text" id="order-id" placeholder="Order ID" required />
-            <input type="text" id="customer-name" placeholder="Customer Name" required />
-            <input type="text" id="product-name" placeholder="Product Name" required />
-            <input type="number" id="quantity" placeholder="Quantity" required />
-            <input type="date" id="order-date" required />
-            <button type="submit" class="btn btn-submit">Add Order</button>
-        </form>
+        <div class="form-container">
+            <h2>Add New Order</h2>
+            <form id="order-form">
+                <div class="input-group">
+                    <input type="text" id="order-product-id" placeholder="Product ID" required />
+                    <input type="text" id="order-customer-id" placeholder="Customer ID" required />
+                </div>
+                <div class="input-group">
+                    <input type="number" id="order-quantity" placeholder="Quantity" required />
+                    <input type="date" id="order-date" required />
+                </div>
+                <div class="input-group">
+                    <input type="text" id="order-status" placeholder="Status" required />
+                </div>
+                <button type="submit" class="btn btn-submit">Add Order</button>
+            </form>
+        </div>
 
-        <table>
-            <thead>
-                <tr>
-                    <th>Order ID</th>
-                    <th>Customer</th>
-                    <th>Product</th>
-                    <th>Quantity</th>
-                    <th>Date</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody id="order-table-body"></tbody>
-        </table>
+        <div class="cards-container" id="order-table-container">
+            <!-- Dynamically populated order cards will go here -->
+        </div>
     </div>
 
     <script src="/frontend/js/orders.js"></script>
