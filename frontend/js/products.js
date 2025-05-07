@@ -5,6 +5,13 @@ const apiURL = "http://127.0.0.1:8000/products";
 
 document.addEventListener("DOMContentLoaded", fetchProducts);
 
+// Check for token
+if (!token) {
+    alert("You are not logged in. Redirecting to login...");
+    window.location.href = "/frontend/index.html";
+}
+
+// Submit new product
 form.addEventListener("submit", async function (e) {
     e.preventDefault();
 
@@ -25,12 +32,13 @@ form.addEventListener("submit", async function (e) {
             body: JSON.stringify(newProduct)
         });
 
+        const data = await res.json().catch(() => ({}));
+
         if (res.ok) {
             await fetchProducts();
             form.reset();
             showToast("Product Added");
         } else {
-            const data = await res.json().catch(() => ({}));
             alert(data.detail || "Failed to add product.");
         }
     } catch (err) {
@@ -39,6 +47,7 @@ form.addEventListener("submit", async function (e) {
     }
 });
 
+// Fetch products
 async function fetchProducts() {
     try {
         const res = await fetch(apiURL, {
@@ -51,10 +60,13 @@ async function fetchProducts() {
         const products = await res.json();
         renderCards(products);
     } catch (err) {
+        console.error(err);
         renderCards([]);
+        alert("Could not fetch products. Please check your access rights.");
     }
 }
 
+// Render product cards
 function renderCards(products) {
     cardContainer.innerHTML = "";
 
@@ -67,11 +79,11 @@ function renderCards(products) {
         const card = document.createElement("div");
         card.className = "product-card";
         card.innerHTML = `
+            <h1>${product.product_id}</h1>
             <h3>${product.name}</h3>
             <p><strong>Price:</strong> ₹${product.price}</p>
             <p><strong>Category:</strong> ${product.category || "N/A"}</p>
             <p><strong>Supplier ID:</strong> ${product.supplier_id || "N/A"}</p>
-            <p><strong>ID:</strong> ${product.product_id}</p>
             <div class="actions">
                 <button class="edit" onclick="editProduct(${product.product_id})">Edit</button>
                 <button class="delete" onclick="deleteProduct(${product.product_id})">Delete</button>
@@ -81,22 +93,24 @@ function renderCards(products) {
     });
 }
 
+// Delete product
 async function deleteProduct(id) {
     if (!confirm("Are you sure you want to delete this product?")) return;
 
     try {
-        const res = await fetch(`${apiURL}?product_id=${id}`, {
+        const res = await fetch(`${apiURL}/${id}`, {
             method: "DELETE",
             headers: {
                 Authorization: `Bearer ${token}`
             }
         });
 
+        const data = await res.json().catch(() => ({}));
+
         if (res.ok) {
             await fetchProducts();
             showToast("Product Deleted");
         } else {
-            const data = await res.json().catch(() => ({}));
             alert(data.detail || "Failed to delete product.");
         }
     } catch (err) {
@@ -105,6 +119,7 @@ async function deleteProduct(id) {
     }
 }
 
+// Edit product
 async function editProduct(id) {
     const name = prompt("Enter new product name:");
     const price = prompt("Enter new price:");
@@ -124,7 +139,7 @@ async function editProduct(id) {
     };
 
     try {
-        const res = await fetch(`${apiURL}?product_id=${id}`, {
+        const res = await fetch(`${apiURL}/${id}`, {
             method: "PUT",
             headers: {
                 "Content-Type": "application/json",
@@ -133,11 +148,12 @@ async function editProduct(id) {
             body: JSON.stringify(updatedProduct)
         });
 
+        const data = await res.json().catch(() => ({}));
+
         if (res.ok) {
             await fetchProducts();
             showToast("Product Updated");
         } else {
-            const data = await res.json().catch(() => ({}));
             alert(data.detail || "Failed to update product.");
         }
     } catch (err) {
@@ -146,11 +162,13 @@ async function editProduct(id) {
     }
 }
 
+// Logout function
 function logout() {
     localStorage.clear();
     window.location.href = "/frontend/index.html";
 }
 
+// Toast notification
 function showToast(message) {
     const toast = document.getElementById("toast");
     toast.textContent = message;

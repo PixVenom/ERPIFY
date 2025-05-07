@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from typing import List
 from backend.models.schemas import StockCreate, StockOut
 from backend.auth.role_checker import manager_required
-from backend.utils.db import get_connection
+from backend.database import get_connection
 
 router = APIRouter()
 

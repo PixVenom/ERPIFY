@@ -1,30 +1,28 @@
 const form = document.getElementById("order-form");
 const tableBody = document.getElementById("order-table-body");
 const token = localStorage.getItem("token");
-const apiURL = "http://localhost:8000/docs"; // API endpoint URL
+const apiURL = "http://localhost:8000/orders";
 
+// Fetch orders on page load
 document.addEventListener("DOMContentLoaded", fetchOrders);
 
 // Handle form submission to add a new order
 form.addEventListener("submit", async function (e) {
     e.preventDefault();
 
-    // Validate form fields
     if (!form.checkValidity()) {
         alert("Please fill out all fields correctly.");
         return;
     }
 
     const newOrder = {
-        product_id: parseInt(document.getElementById("order-product-id").value),
-        customer_id: parseInt(document.getElementById("order-customer-id").value),
-        quantity: parseInt(document.getElementById("order-quantity").value),
-        order_date: document.getElementById("order-date").value,
-        status: document.getElementById("order-status").value
+        customer_id: parseInt(document.getElementById("customer_id").value),
+        order_date: document.getElementById("order_date").value,
+        status: document.getElementById("status").value
     };
 
     try {
-        const res = await fetch(apiURL + "/", {
+        const res = await fetch(apiURL, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -38,7 +36,7 @@ form.addEventListener("submit", async function (e) {
             form.reset();
         } else {
             const error = await res.json();
-            alert(`Failed to place order: ${error.message || "Unknown error"}`);
+            alert(`Failed to place order: ${error.detail || "Unknown error"}`);
         }
     } catch (err) {
         console.error(err);
@@ -46,10 +44,10 @@ form.addEventListener("submit", async function (e) {
     }
 });
 
-// Fetch orders and render them in the table
+// Fetch orders
 async function fetchOrders() {
     try {
-        const res = await fetch(apiURL + "/", {
+        const res = await fetch(apiURL, {
             headers: {
                 Authorization: `Bearer ${token}`
             }
@@ -57,6 +55,8 @@ async function fetchOrders() {
         if (res.ok) {
             const orders = await res.json();
             renderTable(orders);
+        } else if (res.status === 403) {
+            alert("Unauthorized: Check your role or token.");
         } else {
             alert("Failed to fetch orders.");
         }
@@ -66,21 +66,19 @@ async function fetchOrders() {
     }
 }
 
-// Render orders in the table
+// Render orders
 function renderTable(orders) {
     tableBody.innerHTML = "";
     orders.forEach((order) => {
         const row = document.createElement("tr");
         row.innerHTML = `
-      <td>${order.id}</td>
-      <td>${order.product_id}</td>
+      <td>${order.order_id}</td>
       <td>${order.customer_id}</td>
-      <td>${order.quantity}</td>
       <td>${order.order_date}</td>
       <td>${order.status}</td>
       <td>
-        <button class="btn btn-edit" onclick="editOrder(${order.id})">Edit</button>
-        <button class="btn btn-delete" onclick="deleteOrder(${order.id})">Delete</button>
+        <button class="btn btn-edit" onclick="editOrder(${order.order_id})">Edit</button>
+        <button class="btn btn-delete" onclick="deleteOrder(${order.order_id})">Delete</button>
       </td>
     `;
         tableBody.appendChild(row);
@@ -103,7 +101,7 @@ async function deleteOrder(id) {
             fetchOrders();
         } else {
             const error = await res.json();
-            alert(`Failed to delete order: ${error.message || "Unknown error"}`);
+            alert(`Failed to delete order: ${error.detail || "Unknown error"}`);
         }
     } catch (err) {
         console.error(err);
@@ -113,21 +111,17 @@ async function deleteOrder(id) {
 
 // Edit order
 async function editOrder(id) {
-    const product_id = prompt("Enter new product ID:");
     const customer_id = prompt("Enter new customer ID:");
-    const quantity = prompt("Enter new quantity:");
     const order_date = prompt("Enter new order date (YYYY-MM-DD):");
     const status = prompt("Enter new status:");
 
-    if (!product_id || !customer_id || !quantity || !order_date || !status) {
+    if (!customer_id || !order_date || !status) {
         alert("Please fill out all fields.");
         return;
     }
 
     const updatedOrder = {
-        product_id: parseInt(product_id),
         customer_id: parseInt(customer_id),
-        quantity: parseInt(quantity),
         order_date,
         status
     };
@@ -146,7 +140,7 @@ async function editOrder(id) {
             fetchOrders();
         } else {
             const error = await res.json();
-            alert(`Failed to update order: ${error.message || "Unknown error"}`);
+            alert(`Failed to update order: ${error.detail || "Unknown error"}`);
         }
     } catch (err) {
         console.error(err);

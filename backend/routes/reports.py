@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from backend.utils.db import get_connection
+from backend.database import get_connection
 from fastapi import Depends
 from backend.auth.role_checker import admin_required, manager_required
 

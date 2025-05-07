@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from backend.models.schemas import LoginModel, UserCreate, UserOut
-from backend.utils.db import get_connection
+from backend.database import get_connection
 from backend.utils.security import hash_password, verify_password
 from backend.utils.jwt import create_access_token
 

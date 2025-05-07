@@ -1,70 +1,84 @@
 from fastapi import APIRouter, Depends, HTTPException
 from typing import List
 from backend.models.schemas import OrderCreate, OrderOut
-from backend.auth.role_checker import manager_required
-from backend.utils.db import get_connection
+from backend.auth.role_checker import JWTBearer
+from backend.database import get_connection
 
 router = APIRouter()
 
-
-@router.post("/orders", response_model=OrderOut, dependencies=[Depends(manager_required)])
+# Create a new order
+@router.post("/orders", response_model=OrderOut, dependencies=[Depends(JWTBearer(["admin", "manager", "staff", "customer"]))])
 def create_order(order: OrderCreate):
     conn = get_connection()
     cursor = conn.cursor(dictionary=True)
-    cursor.execute("INSERT INTO orders (CustomerID, OrderDate, Status) VALUES (%s, %s, %s)",
-                   (order.customer_id, order.order_date, order.status))
-    conn.commit()
-    cursor.execute("SELECT * FROM orders WHERE OrderID = LAST_INSERT_ID()")
-    new_order = cursor.fetchone()
-    cursor.close()
-    conn.close()
-    return new_order
+    try:
+        cursor.execute(
+            "INSERT INTO orders (customer_id, order_date, status) VALUES (%s, %s, %s)",
+            (order.customer_id, order.order_date, order.status)
+        )
+        conn.commit()
+        cursor.execute("SELECT * FROM orders WHERE order_id = LAST_INSERT_ID()")
+        new_order = cursor.fetchone()
+        return new_order
+    finally:
+        cursor.close()
+        conn.close()
 
-
-@router.get("/orders", response_model=List[OrderOut], dependencies=[Depends(manager_required)])
+# Get all orders
+@router.get("/orders", response_model=List[OrderOut], dependencies=[Depends(JWTBearer(["admin", "manager", "staff", "customer"]))])
 def get_orders():
     conn = get_connection()
     cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT * FROM orders")
-    orders = cursor.fetchall()
-    cursor.close()
-    conn.close()
-    return orders
+    try:
+        cursor.execute("SELECT * FROM orders")
+        orders = cursor.fetchall()
+        return orders
+    finally:
+        cursor.close()
+        conn.close()
 
-
-@router.get("/orders/{order_id}", response_model=OrderOut, dependencies=[Depends(manager_required)])
+# Get order by ID
+@router.get("/orders/{order_id}", response_model=OrderOut, dependencies=[Depends(JWTBearer(["admin", "manager", "staff", "customer"]))])
 def get_order(order_id: int):
     conn = get_connection()
     cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT * FROM orders WHERE OrderID = %s", (order_id,))
-    order = cursor.fetchone()
-    cursor.close()
-    conn.close()
-    if not order:
-        raise HTTPException(status_code=404, detail="Order not found")
-    return order
+    try:
+        cursor.execute("SELECT * FROM orders WHERE order_id = %s", (order_id,))
+        order = cursor.fetchone()
+        if not order:
+            raise HTTPException(status_code=404, detail="Order not found")
+        return order
+    finally:
+        cursor.close()
+        conn.close()
 
-
-@router.put("/orders/{order_id}", response_model=OrderOut, dependencies=[Depends(manager_required)])
+# Update an order
+@router.put("/orders/{order_id}", response_model=OrderOut, dependencies=[Depends(JWTBearer(["admin", "manager", "staff", "customer"]))])
 def update_order(order_id: int, order: OrderCreate):
     conn = get_connection()
     cursor = conn.cursor(dictionary=True)
-    cursor.execute("UPDATE orders SET CustomerID=%s, OrderDate=%s, Status=%s WHERE OrderID=%s",
-                   (order.customer_id, order.order_date, order.status, order_id))
-    conn.commit()
-    cursor.execute("SELECT * FROM orders WHERE OrderID = %s", (order_id,))
-    updated_order = cursor.fetchone()
-    cursor.close()
-    conn.close()
-    return updated_order
+    try:
+        cursor.execute(
+            "UPDATE orders SET customer_id=%s, order_date=%s, status=%s WHERE order_id=%s",
+            (order.customer_id, order.order_date, order.status, order_id)
+        )
+        conn.commit()
+        cursor.execute("SELECT * FROM orders WHERE order_id = %s", (order_id,))
+        updated_order = cursor.fetchone()
+        return updated_order
+    finally:
+        cursor.close()
+        conn.close()
 
-
-@router.delete("/orders/{order_id}", dependencies=[Depends(manager_required)])
+# Delete an order
+@router.delete("/orders/{order_id}", dependencies=[Depends(JWTBearer(["admin", "manager", "staff", "customer"]))])
 def delete_order(order_id: int):
     conn = get_connection()
     cursor = conn.cursor()
-    cursor.execute("DELETE FROM orders WHERE OrderID = %s", (order_id,))
-    conn.commit()
-    cursor.close()
-    conn.close()
-    return {"message": "Order deleted successfully"}
+    try:
+        cursor.execute("DELETE FROM orders WHERE order_id = %s", (order_id,))
+        conn.commit()
+        return {"message": "Order deleted successfully"}
+    finally:
+        cursor.close()
+        conn.close()

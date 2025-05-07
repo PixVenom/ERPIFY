@@ -57,8 +57,12 @@ class ProductBase(BaseModel):
 class ProductCreate(ProductBase):
     pass
 
-class ProductOut(ProductBase):
+class ProductOut(BaseModel):
     product_id: int
+    name: str
+    category: Optional[str] = None
+    price: float
+    supplier_id: Optional[int] = None
 
 # ---------- Stock ----------
 
@@ -83,7 +87,7 @@ class OrderItem(BaseModel):
 class OrderCreate(BaseModel):
     customer_id: int
     order_date: date
-    items: List[OrderItem]
+    status: str
 
 class OrderOut(BaseModel):
     order_id: int

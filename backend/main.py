@@ -10,6 +10,8 @@ import sys
 from backend.database import engine
 from backend.models.models import Base  # Corrected import
 from backend.routes import products
+from backend.routes import customers
+from backend.routes import orders
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))  # Fixed typo here
 
@@ -29,11 +31,15 @@ Base.metadata.create_all(bind=engine)  # Corrected to use 'Base'
 app = FastAPI()
 
 app.include_router(products.router, tags=["Products"])
+app.include_router(customers.router, tags=["Customers"])
+app.include_router(orders.router, tags=["Orders"])
 
 # CORS config (adjust origin if needed)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://127.0.0.1:5500", "http://127.0.0.1:8000/products"],  # Adjusted to allow your frontend's URL
+    allow_origins=["http://127.0.0.1:5500",
+                   "http://localhost:5500",
+                   "*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

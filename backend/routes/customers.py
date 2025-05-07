@@ -1,70 +1,85 @@
 from fastapi import APIRouter, Depends, HTTPException
 from typing import List
 from backend.models.schemas import CustomerCreate, CustomerOut
-from backend.auth.role_checker import manager_required
-from backend.utils.db import get_connection
+from backend.auth.role_checker import JWTBearer
+from backend.database import get_connection
 
 router = APIRouter()
 
-
-@router.post("/customers", response_model=CustomerOut, dependencies=[Depends(manager_required)])
+@router.post("/customers", response_model=CustomerOut, dependencies=[Depends(JWTBearer(["manager", "admin", "staff"]))])
 def create_customer(customer: CustomerCreate):
-    conn = get_connection()
-    cursor = conn.cursor(dictionary=True)
-    cursor.execute("INSERT INTO customers (customer_id,name,email,phone,address) VALUES (%s, %s, %s, %s,%s)",
-                   (customer.customer_id,customer.name,customer.email,customer.phone,customer.address))
-    conn.commit()
-    cursor.execute("SELECT * FROM customers WHERE customer_id = LAST_INSERT_ID()")
-    new_customer = cursor.fetchone()
-    cursor.close()
-    conn.close()
-    return new_customer
+    connection = get_connection()
+    cursor = connection.cursor()
+    try:
+        cursor.execute(
+            "INSERT INTO customers (name, email, phone, address) VALUES (%s, %s, %s, %s)",
+            (customer.name, customer.email, customer.phone, customer.address)
+        )
+        connection.commit()
 
+        new_customer_id = cursor.lastrowid  # Get the ID of the newly inserted customer
+        cursor.execute("SELECT * FROM customers WHERE customer_id = %s", (new_customer_id,))
+        new_customer = cursor.fetchone()
+        
+        if not new_customer:
+            raise HTTPException(status_code=500, detail="Customer not found after insert")
+        return new_customer
+    finally:
+        cursor.close()
+        connection.close()
 
-@router.get("/customers", response_model=List[CustomerOut], dependencies=[Depends(manager_required)])
+@router.get("/customers", response_model=List[CustomerOut], dependencies=[Depends(JWTBearer(["manager", "admin", "staff"]))])
 def get_customers():
-    conn = get_connection()
-    cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT * FROM customers")
-    customers = cursor.fetchall()
-    cursor.close()
-    conn.close()
-    return customers
+    connection = get_connection()
+    cursor = connection.cursor()
+    try:
+        cursor.execute("SELECT * FROM customers")
+        return cursor.fetchall()
+    finally:
+        cursor.close()
+        connection.close()
 
-
-@router.get("/customers/{customer_id}", response_model=CustomerOut, dependencies=[Depends(manager_required)])
+@router.get("/customers/{customer_id}", response_model=CustomerOut, dependencies=[Depends(JWTBearer(["manager", "admin", "staff"]))])
 def get_customer(customer_id: int):
-    conn = get_connection()
-    cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT * FROM customers WHERE customer_id = %s", (customer_id,))
-    customer = cursor.fetchone()
-    cursor.close()
-    conn.close()
-    if not customer:
-        raise HTTPException(status_code=404, detail="Customer not found")
-    return customer
+    connection = get_connection()
+    cursor = connection.cursor()
+    try:
+        cursor.execute("SELECT * FROM customers WHERE customer_id = %s", (customer_id,))
+        customer = cursor.fetchone()
+        if not customer:
+            raise HTTPException(status_code=404, detail="Customer not found")
+        return customer
+    finally:
+        cursor.close()
+        connection.close()
 
-
-@router.put("/customers/{customer_id}", response_model=CustomerOut, dependencies=[Depends(manager_required)])
+@router.put("/customers/{customer_id}", response_model=CustomerOut, dependencies=[Depends(JWTBearer(["manager", "admin", "staff"]))])
 def update_customer(customer_id: int, customer: CustomerCreate):
-    conn = get_connection()
-    cursor = conn.cursor(dictionary=True)
-    cursor.execute("UPDATE customers SET customer_id=%d, name=%s, email=%s, phone=%d WHERE customer_id=%d",
-                   (customer.name, customer.email, customer.phone, customer.address, customer_id))
-    conn.commit()
-    cursor.execute("SELECT * FROM customers WHERE customer_id = %d", (customer_id,))
-    updated_customer = cursor.fetchone()
-    cursor.close()
-    conn.close()
-    return updated_customer
+    connection = get_connection()
+    cursor = connection.cursor()
+    try:
+        cursor.execute(
+            "UPDATE customers SET name=%s, email=%s, phone=%s, address=%s WHERE customer_id=%s",
+            (customer.name, customer.email, customer.phone, customer.address, customer_id)
+        )
+        connection.commit()
+        cursor.execute("SELECT * FROM customers WHERE customer_id = %s", (customer_id,))
+        updated_customer = cursor.fetchone()
+        if not updated_customer:
+            raise HTTPException(status_code=404, detail="Updated customer not found")
+        return updated_customer
+    finally:
+        cursor.close()
+        connection.close()
 
-
-@router.delete("/customers/{customer_id}", dependencies=[Depends(manager_required)])
+@router.delete("/customers/{customer_id}", dependencies=[Depends(JWTBearer(["manager", "admin", "staff"]))])
 def delete_customer(customer_id: int):
-    conn = get_connection()
-    cursor = conn.cursor()
-    cursor.execute("DELETE FROM customers WHERE customer_id = %d", (customer_id,))
-    conn.commit()
-    cursor.close()
-    conn.close()
-    return {"message": "Customer deleted successfully"}
+    connection = get_connection()
+    cursor = connection.cursor()
+    try:
+        cursor.execute("DELETE FROM customers WHERE customer_id = %s", (customer_id,))
+        connection.commit()
+        return {"message": "Customer deleted successfully"}
+    finally:
+        cursor.close()
+        connection.close()

@@ -1,7 +1,7 @@
 const form = document.getElementById("customer-form");
 const tableBody = document.getElementById("customer-table-body");
 const token = localStorage.getItem("token");
-const apiURL = "http://localhost:8000/docs";
+const apiURL = "http://localhost:8000/customers";
 
 document.addEventListener("DOMContentLoaded", fetchCustomers);
 
@@ -9,14 +9,14 @@ form.addEventListener("submit", async function (e) {
     e.preventDefault();
 
     const newCustomer = {
-        name: document.getElementById("customer-name").value,
-        email: document.getElementById("customer-email").value,
-        phone: document.getElementById("customer-phone").value,
-        address: document.getElementById("customer-address").value
+        name: document.getElementById("name").value,
+        email: document.getElementById("email").value,
+        phone: document.getElementById("phone").value,
+        address: document.getElementById("address").value
     };
 
     try {
-        const res = await fetch(apiURL + "/", {
+        const res = await fetch(apiURL, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -26,27 +26,38 @@ form.addEventListener("submit", async function (e) {
         });
 
         if (res.ok) {
-            fetchCustomers();
+            fetchCustomers();  // Refresh the customer list
             form.reset();
         } else {
-            alert("Failed to add customer.");
+            const errorJson = await res.json();  // Attempt to get the JSON error details
+            alert("Failed to add customer.\n" + errorJson.detail || 'Unknown error');
         }
     } catch (err) {
-        console.error(err);
+        console.error("Add customer error:", err);
     }
 });
 
 async function fetchCustomers() {
     try {
-        const res = await fetch(apiURL + "/", {
+        const res = await fetch(apiURL, {
             headers: {
                 Authorization: `Bearer ${token}`
             }
         });
+
+        if (!res.ok) {
+            const text = await res.text();
+            throw new Error(`HTTP error: ${res.status}\n${text}`);
+        }
+
         const customers = await res.json();
+        if (!Array.isArray(customers)) {
+            throw new Error("Expected an array but got: " + JSON.stringify(customers));
+        }
         renderTable(customers);
     } catch (err) {
         console.error("Error fetching customers:", err);
+        alert("Failed to fetch customers.\n" + err.message);  // Display the error in the UI
     }
 }
 
@@ -55,14 +66,14 @@ function renderTable(customers) {
     customers.forEach((customer) => {
         const row = document.createElement("tr");
         row.innerHTML = `
-      <td>${customer.id}</td>
+      <td>${customer.customer_id}</td>
       <td>${customer.name}</td>
       <td>${customer.email}</td>
       <td>${customer.phone}</td>
       <td>${customer.address}</td>
       <td>
-        <button class="btn btn-edit" onclick="editCustomer(${customer.id})">Edit</button>
-        <button class="btn btn-delete" onclick="deleteCustomer(${customer.id})">Delete</button>
+        <button class="btn btn-edit" onclick="editCustomer(${customer.customer_id})">Edit</button>
+        <button class="btn btn-delete" onclick="deleteCustomer(${customer.customer_id})">Delete</button>
       </td>
     `;
         tableBody.appendChild(row);
@@ -78,12 +89,13 @@ async function deleteCustomer(id) {
             }
         });
         if (res.ok) {
-            fetchCustomers();
+            fetchCustomers();  // Refresh the customer list
         } else {
-            alert("Failed to delete customer.");
+            const errorText = await res.text();
+            alert("Failed to delete customer.\n" + errorText);
         }
     } catch (err) {
-        console.error(err);
+        console.error("Delete error:", err);
     }
 }
 
@@ -106,11 +118,12 @@ async function editCustomer(id) {
         });
 
         if (res.ok) {
-            fetchCustomers();
+            fetchCustomers();  // Refresh the customer list
         } else {
-            alert("Failed to update customer.");
+            const errorText = await res.text();
+            alert("Failed to update customer.\n" + errorText);
         }
     } catch (err) {
-        console.error(err);
+        console.error("Edit error:", err);
     }
 }
