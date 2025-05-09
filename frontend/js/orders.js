@@ -4,7 +4,13 @@ const token = localStorage.getItem("token");
 const apiURL = "http://localhost:8000/orders";
 
 // Fetch orders on page load
-document.addEventListener("DOMContentLoaded", fetchOrders);
+document.addEventListener("DOMContentLoaded", () => {
+    if (!token) {
+        alert("No token found. Please log in first.");
+        return;
+    }
+    fetchOrders();
+});
 
 // Handle form submission to add a new order
 form.addEventListener("submit", async function (e) {
@@ -49,14 +55,14 @@ async function fetchOrders() {
     try {
         const res = await fetch(apiURL, {
             headers: {
-                Authorization: `Bearer ${token}`
+                "Authorization": `Bearer ${token}`
             }
         });
         if (res.ok) {
             const orders = await res.json();
             renderTable(orders);
         } else if (res.status === 403) {
-            alert("Unauthorized: Check your role or token.");
+            alert("403 Forbidden: You do not have permission to access orders.");
         } else {
             alert("Failed to fetch orders.");
         }
@@ -66,29 +72,28 @@ async function fetchOrders() {
     }
 }
 
-// Render orders
+// Render orders in table
 function renderTable(orders) {
     tableBody.innerHTML = "";
     orders.forEach((order) => {
         const row = document.createElement("tr");
         row.innerHTML = `
-      <td>${order.order_id}</td>
-      <td>${order.customer_id}</td>
-      <td>${order.order_date}</td>
-      <td>${order.status}</td>
-      <td>
-        <button class="btn btn-edit" onclick="editOrder(${order.order_id})">Edit</button>
-        <button class="btn btn-delete" onclick="deleteOrder(${order.order_id})">Delete</button>
-      </td>
-    `;
+            <td>${order.order_id}</td>
+            <td>${order.customer_id}</td>
+            <td>${order.order_date}</td>
+            <td>${order.status}</td>
+            <td>
+                <button class="btn btn-edit" onclick="editOrder(${order.order_id})">Edit</button>
+                <button class="btn btn-delete" onclick="deleteOrder(${order.order_id})">Delete</button>
+            </td>
+        `;
         tableBody.appendChild(row);
     });
 }
 
 // Delete order
 async function deleteOrder(id) {
-    const confirmDelete = confirm("Are you sure you want to delete this order?");
-    if (!confirmDelete) return;
+    if (!confirm("Are you sure you want to delete this order?")) return;
 
     try {
         const res = await fetch(`${apiURL}/${id}`, {
@@ -116,7 +121,7 @@ async function editOrder(id) {
     const status = prompt("Enter new status:");
 
     if (!customer_id || !order_date || !status) {
-        alert("Please fill out all fields.");
+        alert("All fields are required.");
         return;
     }
 

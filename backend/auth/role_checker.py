@@ -1,23 +1,24 @@
-# auth/role_checker.py
+from fastapi import Request, HTTPException
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from typing import List
+from jose import jwt, JWTError
+from backend.utils.jwt import SECRET_KEY, ALGORITHM
 
-from fastapi import Depends, HTTPException
-from backend.auth.auth_bearer import JWTBearer
-from jose import jwt
-from backend.auth.auth_handler import SECRET_KEY, ALGORITHM
+class JWTBearer(HTTPBearer):
+    def __init__(self, allowed_roles: List[str]):
+        super(JWTBearer, self).__init__()
+        self.allowed_roles = allowed_roles
 
-def get_current_user(token: str = Depends(JWTBearer())):
-    try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        return payload  # returns a dict: {'sub': 'username', 'role': 'A001'}
-    except:
-        raise HTTPException(status_code=401, detail="Invalid token")
-
-def admin_required(user=Depends(get_current_user)):
-    if user["role"] != "A001":
-        raise HTTPException(status_code=403, detail="Admin access required")
-    return user
-
-def manager_required(user=Depends(get_current_user)):
-    if user["role"] not in ("A001", "M001"):
-        raise HTTPException(status_code=403, detail="Manager or Admin access required")
-    return user
+    async def __call__(self, request: Request):
+        credentials: HTTPAuthorizationCredentials = await super(JWTBearer, self).__call__(request)
+        if credentials:
+            token = credentials.credentials
+            try:
+                payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+                role = payload.get("role")
+                if role not in self.allowed_roles:
+                    raise HTTPException(status_code=403, detail="Forbidden: Role not authorized")
+            except JWTError:
+                raise HTTPException(status_code=403, detail="Invalid token or expired")
+        else:
+            raise HTTPException(status_code=403, detail="Invalid authorization")

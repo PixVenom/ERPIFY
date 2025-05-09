@@ -57,7 +57,7 @@ async def login(user: LoginModel):
     if not verify_password(user.password, stored_password_hash):
         raise HTTPException(status_code=401, detail="Invalid username or password")
 
-    token = create_access_token(data={"sub": user.username})
+    token = create_access_token(data={"sub": user.username, "role": db_user["role"]})
     return {"access_token": token, "token_type": "bearer"}
 
 @router.get("/test-password")

@@ -15,7 +15,7 @@ class UserOut(BaseModel):
     created_at: Optional[datetime]
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class LoginModel(BaseModel):
     username: str
@@ -34,6 +34,9 @@ class CustomerCreate(CustomerBase):
 class CustomerOut(CustomerBase):
     customer_id: int
 
+    class Config:
+        from_attributes = True
+
 # ---------- Supplier ----------
 class SupplierBase(BaseModel):
     name: str
@@ -46,6 +49,9 @@ class SupplierCreate(SupplierBase):
 
 class SupplierOut(SupplierBase):
     supplier_id: int
+
+    class Config:
+        from_attributes = True
 
 # ---------- Product ----------
 class ProductBase(BaseModel):
@@ -64,8 +70,10 @@ class ProductOut(BaseModel):
     price: float
     supplier_id: Optional[int] = None
 
-# ---------- Stock ----------
+    class Config:
+        from_attributes = True
 
+# ---------- Stock ----------
 class StockCreate(BaseModel):
     product_id: int
     quantity: int
@@ -77,6 +85,9 @@ class StockBase(BaseModel):
 class StockOut(StockBase):
     stock_id: int
     last_updated: datetime
+
+    class Config:
+        from_attributes = True
 
 # ---------- Order & Order Items ----------
 class OrderItem(BaseModel):
@@ -95,12 +106,18 @@ class OrderOut(BaseModel):
     order_date: date
     status: str
 
+    class Config:
+        from_attributes = True
+
 class OrderItemOut(BaseModel):
     order_item_id: int
     order_id: int
     product_id: int
     quantity: int
     unit_price: float
+
+    class Config:
+        from_attributes = True
 
 # ---------- Invoice ----------
 class InvoiceCreate(BaseModel):
@@ -115,16 +132,31 @@ class InvoiceOut(BaseModel):
     invoice_date: date
     total_amount: float
     payment_status: str
-    
-# ---------shipping------------
 
-class shippingCreate(BaseModel):
+    class Config:
+        from_attributes = True
+
+# ---------- Shipping ----------
+class ShippingCreate(BaseModel):
     invoice_id: int
     shipping_date: date
     shipping_status: str
-    
-class shiipingOut(BaseModel):
+
+class ShippingOut(BaseModel):
     shipping_id: int
     invoice_id: int
     shipping_date: date
     shipping_status: str
+
+    class Config:
+        from_attributes = True
+
+# testing if schemas work with the main backend code
+if __name__ == "__main__":
+    test = ShippingOut(
+        shipping_id=1,
+        invoice_id=101,
+        shipping_date=date.today(),
+        shipping_status="Shipped"
+    )
+    print(test.model_dump_json())
