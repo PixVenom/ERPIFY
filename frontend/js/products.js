@@ -1,54 +1,61 @@
 const form = document.getElementById("product-form");
 const cardContainer = document.getElementById("product-card-container");
-const token = localStorage.getItem("token");
 const apiURL = "http://127.0.0.1:8000/products";
 
-document.addEventListener("DOMContentLoaded", fetchProducts);
+// Check for token and fetch products
+document.addEventListener("DOMContentLoaded", () => {
+    const token = localStorage.getItem("access_token"); // ✅ Moved inside
+    console.log("Token from localStorage:", token); // ✅ CORRECT variable
 
-// Check for token
-if (!token) {
-    alert("You are not logged in. Redirecting to login...");
-    window.location.href = "/frontend/index.html";
-}
+    if (!token) {
+        alert("You are not logged in. Redirecting to login...");
+        window.location.href = "/frontend/index.html";
+        return;
+    }
 
-// Submit new product
-form.addEventListener("submit", async function (e) {
-    e.preventDefault();
+    fetchProducts(token);
 
-    const newProduct = {
-        name: document.getElementById("product-name").value.trim(),
-        price: parseFloat(document.getElementById("product-price").value),
-        category: document.getElementById("product-category").value.trim(),
-        supplier_id: parseInt(document.getElementById("product-supplier-id").value)
-    };
+    // Attach submit handler only if form exists
+    if (form) {
+        form.addEventListener("submit", async function (e) {
+            e.preventDefault();
 
-    try {
-        const res = await fetch(apiURL, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`
-            },
-            body: JSON.stringify(newProduct)
+            const newProduct = {
+                name: document.getElementById("product-name").value.trim(),
+                price: parseFloat(document.getElementById("product-price").value),
+                category: document.getElementById("product-category").value.trim(),
+                supplier_id: parseInt(document.getElementById("product-supplier-id").value)
+            };
+
+            try {
+                const res = await fetch(apiURL, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`
+                    },
+                    body: JSON.stringify(newProduct)
+                });
+
+                const data = await res.json().catch(() => ({}));
+
+                if (res.ok) {
+                    await fetchProducts(token);
+                    form.reset();
+                    showToast("✅ Product Added");
+                } else {
+                    alert(data.detail || "❌ Failed to add product.");
+                }
+            } catch (err) {
+                console.error(err);
+                alert("❌ Error adding product.");
+            }
         });
-
-        const data = await res.json().catch(() => ({}));
-
-        if (res.ok) {
-            await fetchProducts();
-            form.reset();
-            showToast("Product Added");
-        } else {
-            alert(data.detail || "Failed to add product.");
-        }
-    } catch (err) {
-        console.error(err);
-        alert("Error adding product.");
     }
 });
 
 // Fetch products
-async function fetchProducts() {
+async function fetchProducts(token) {
     try {
         const res = await fetch(apiURL, {
             headers: {
@@ -58,16 +65,16 @@ async function fetchProducts() {
 
         if (!res.ok) throw new Error(`Failed to fetch products: ${res.status}`);
         const products = await res.json();
-        renderCards(products);
+        renderCards(products, token);
     } catch (err) {
         console.error(err);
-        renderCards([]);
-        alert("Could not fetch products. Please check your access rights.");
+        renderCards([], token);
+        alert("❌ Could not fetch products. Please check your access rights.");
     }
 }
 
 // Render product cards
-function renderCards(products) {
+function renderCards(products, token) {
     cardContainer.innerHTML = "";
 
     if (!products || products.length === 0) {
@@ -85,8 +92,8 @@ function renderCards(products) {
             <p><strong>Category:</strong> ${product.category || "N/A"}</p>
             <p><strong>Supplier ID:</strong> ${product.supplier_id || "N/A"}</p>
             <div class="actions">
-                <button class="edit" onclick="editProduct(${product.product_id})">Edit</button>
-                <button class="delete" onclick="deleteProduct(${product.product_id})">Delete</button>
+                <button class="edit" onclick="editProduct(${product.product_id}, '${token}')">✏️ Edit</button>
+                <button class="delete" onclick="deleteProduct(${product.product_id}, '${token}')">🗑️ Delete</button>
             </div>
         `;
         cardContainer.appendChild(card);
@@ -94,7 +101,7 @@ function renderCards(products) {
 }
 
 // Delete product
-async function deleteProduct(id) {
+async function deleteProduct(id, token) {
     if (!confirm("Are you sure you want to delete this product?")) return;
 
     try {
@@ -108,26 +115,26 @@ async function deleteProduct(id) {
         const data = await res.json().catch(() => ({}));
 
         if (res.ok) {
-            await fetchProducts();
-            showToast("Product Deleted");
+            await fetchProducts(token);
+            showToast("🗑️ Product Deleted");
         } else {
-            alert(data.detail || "Failed to delete product.");
+            alert(data.detail || "❌ Failed to delete product.");
         }
     } catch (err) {
         console.error(err);
-        alert("Error deleting product.");
+        alert("❌ Error deleting product.");
     }
 }
 
 // Edit product
-async function editProduct(id) {
+async function editProduct(id, token) {
     const name = prompt("Enter new product name:");
     const price = prompt("Enter new price:");
     const category = prompt("Enter new category:");
     const supplier_id = prompt("Enter new supplier ID:");
 
     if (!name || !price || isNaN(price)) {
-        alert("Invalid input.");
+        alert("❌ Invalid input.");
         return;
     }
 
@@ -151,14 +158,14 @@ async function editProduct(id) {
         const data = await res.json().catch(() => ({}));
 
         if (res.ok) {
-            await fetchProducts();
-            showToast("Product Updated");
+            await fetchProducts(token);
+            showToast("✏️ Product Updated");
         } else {
-            alert(data.detail || "Failed to update product.");
+            alert(data.detail || "❌ Failed to update product.");
         }
     } catch (err) {
         console.error(err);
-        alert("Error updating product.");
+        alert("❌ Error updating product.");
     }
 }
 
@@ -171,6 +178,8 @@ function logout() {
 // Toast notification
 function showToast(message) {
     const toast = document.getElementById("toast");
+    if (!toast) return;
+
     toast.textContent = message;
     toast.classList.add("show");
     setTimeout(() => {
