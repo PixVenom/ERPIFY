@@ -3,56 +3,45 @@ const cardContainer = document.getElementById("product-card-container");
 const apiURL = "http://127.0.0.1:8000/products";
 
 // Check for token and fetch products
+// Login handler (for index.html or login form)
+// Only attaches if the login form is present on the page
 document.addEventListener("DOMContentLoaded", () => {
-    const token = localStorage.getItem("access_token"); // ✅ Moved inside
-    console.log("Token from localStorage:", token); // ✅ CORRECT variable
-
-    if (!token) {
-        alert("You are not logged in. Redirecting to login...");
-        window.location.href = "/frontend/index.html";
-        return;
-    }
-
-    fetchProducts(token);
-
-    // Attach submit handler only if form exists
-    if (form) {
-        form.addEventListener("submit", async function (e) {
+    const loginForm = document.getElementById("login-form");
+    if (loginForm) {
+        loginForm.addEventListener("submit", async function (e) {
             e.preventDefault();
 
-            const newProduct = {
-                name: document.getElementById("product-name").value.trim(),
-                price: parseFloat(document.getElementById("product-price").value),
-                category: document.getElementById("product-category").value.trim(),
-                supplier_id: parseInt(document.getElementById("product-supplier-id").value)
-            };
+            const username = document.getElementById("username").value;
+            const password = document.getElementById("password").value;
 
             try {
-                const res = await fetch(apiURL, {
+                const response = await fetch("http://127.0.0.1:8000/login", {
                     method: "POST",
                     headers: {
-                        "Content-Type": "application/json",
-                        Authorization: `Bearer ${token}`
+                        "Content-Type": "application/json"
                     },
-                    body: JSON.stringify(newProduct)
+                    body: JSON.stringify({ username, password })
                 });
 
-                const data = await res.json().catch(() => ({}));
+                const data = await response.json();
 
-                if (res.ok) {
-                    await fetchProducts(token);
-                    form.reset();
-                    showToast("✅ Product Added");
+                if (response.ok) {
+                    localStorage.setItem("access_token", response.access_token); // ✅ Store token
+                    showToast("✅ Login successful! Redirecting...");
+                    setTimeout(() => {
+                        window.location.href = "/frontend/products.html";
+                    }, 1000);
                 } else {
-                    alert(data.detail || "❌ Failed to add product.");
+                    alert(data.detail || "❌ Login failed.");
                 }
             } catch (err) {
                 console.error(err);
-                alert("❌ Error adding product.");
+                alert("❌ Something went wrong during login.");
             }
         });
     }
 });
+
 
 // Fetch products
 async function fetchProducts(token) {

@@ -30,7 +30,7 @@ def get_connection():
             user="root",  # Your MySQL username
             password="MySQLM4Pro",  # Your MySQL password
             database="ERP",  # Your MySQL database name
-            cursorclass=pymysql.cursors.DictCursor  # This will ensure rows are returned as dictionaries
+            cursorclass=pymysql.cursors.DictCursor # This will ensure rows are returned as dictionaries
         )
     except Exception as e:
         print("Database connection failed:", str(e))

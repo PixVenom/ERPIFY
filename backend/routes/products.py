@@ -9,6 +9,7 @@ router = APIRouter()
 # Create product
 @router.post("/products", response_model=ProductOut, dependencies=[Depends(JWTBearer(["manager", "admin", "staff"]))])
 def create_product(product: ProductCreate):
+    conn = None
     try:
         conn = get_connection()
         with conn.cursor() as cursor:
@@ -39,6 +40,7 @@ def create_product(product: ProductCreate):
 # Get all products
 @router.get("/products", response_model=List[ProductOut], dependencies=[Depends(JWTBearer(["manager", "admin", "staff"]))])
 def get_products():
+    conn = None
     try:
         conn = get_connection()
         with conn.cursor() as cursor:
@@ -47,25 +49,24 @@ def get_products():
             return products
 
     except Exception as e:
-        print("Error in get products():", str(e))
+        print("Error in get_products():", str(e))
         raise HTTPException(status_code=500, detail=f"Error fetching products: {str(e)}")
 
     finally:
         if conn:
             conn.close()
 
-# Get a single product
+# Get single product
 @router.get("/products/{product_id}", response_model=ProductOut, dependencies=[Depends(JWTBearer(["manager", "admin", "staff"]))])
 def get_product(product_id: int):
+    conn = None
     try:
         conn = get_connection()
         with conn.cursor() as cursor:
             cursor.execute("SELECT * FROM products WHERE product_id = %s", (product_id,))
             product = cursor.fetchone()
-
             if not product:
                 raise HTTPException(status_code=404, detail="Product not found")
-
             return product
 
     except Exception as e:
@@ -75,14 +76,16 @@ def get_product(product_id: int):
         if conn:
             conn.close()
 
-# Update a product
+# Update product
 @router.put("/products/{product_id}", response_model=ProductOut, dependencies=[Depends(JWTBearer(["manager", "admin", "staff"]))])
 def update_product(product_id: int, product: ProductCreate):
+    conn = None
     try:
         conn = get_connection()
         with conn.cursor() as cursor:
             update_query = """
-            UPDATE products SET name = %s, category = %s, price = %s, supplier_id = %s
+            UPDATE products
+            SET name = %s, category = %s, price = %s, supplier_id = %s
             WHERE product_id = %s
             """
             cursor.execute(update_query, (
@@ -96,10 +99,8 @@ def update_product(product_id: int, product: ProductCreate):
 
             cursor.execute("SELECT * FROM products WHERE product_id = %s", (product_id,))
             updated_product = cursor.fetchone()
-
             if not updated_product:
                 raise HTTPException(status_code=404, detail="Product not found")
-
             return updated_product
 
     except Exception as e:
@@ -109,9 +110,10 @@ def update_product(product_id: int, product: ProductCreate):
         if conn:
             conn.close()
 
-# Delete a product
+# Delete product
 @router.delete("/products/{product_id}", dependencies=[Depends(JWTBearer(["manager", "admin", "staff"]))])
 def delete_product(product_id: int):
+    conn = None
     try:
         conn = get_connection()
         with conn.cursor() as cursor:
