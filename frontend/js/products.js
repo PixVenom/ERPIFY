@@ -2,11 +2,11 @@ const form = document.getElementById("product-form");
 const cardContainer = document.getElementById("product-card-container");
 const apiURL = "http://127.0.0.1:8000/products";
 
-// Check for token and fetch products
-// Login handler (for index.html or login form)
-// Only attaches if the login form is present on the page
+// DOM Loaded
 document.addEventListener("DOMContentLoaded", () => {
     const loginForm = document.getElementById("login-form");
+
+    // Handle login
     if (loginForm) {
         loginForm.addEventListener("submit", async function (e) {
             e.preventDefault();
@@ -26,7 +26,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 const data = await response.json();
 
                 if (response.ok) {
-                    localStorage.setItem("access_token", response.access_token); // ✅ Store token
+                    localStorage.setItem("access_token", data.access_token); // ✅ FIXED
                     showToast("✅ Login successful! Redirecting...");
                     setTimeout(() => {
                         window.location.href = "/frontend/products.html";
@@ -40,8 +40,13 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
     }
-});
 
+    // Auto-fetch products if on products.html
+    const token = localStorage.getItem("access_token");
+    if (token && window.location.pathname.includes("products.html")) {
+        fetchProducts(token);
+    }
+});
 
 // Fetch products
 async function fetchProducts(token) {
@@ -158,13 +163,13 @@ async function editProduct(id, token) {
     }
 }
 
-// Logout function
+// Logout
 function logout() {
     localStorage.clear();
     window.location.href = "/frontend/index.html";
 }
 
-// Toast notification
+// Toast
 function showToast(message) {
     const toast = document.getElementById("toast");
     if (!toast) return;

@@ -51,7 +51,7 @@ async def login(user: LoginModel):
     if db_user is None:
         raise HTTPException(status_code=401, detail="Invalid username or password")
 
-    stored_password_hash = db_user[1]  # double check index
+    stored_password_hash = db_user["password"]  # <-- FIXED HERE
     print("Stored hash:", stored_password_hash)
 
     if not verify_password(user.password, stored_password_hash):
